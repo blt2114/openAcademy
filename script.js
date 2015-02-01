@@ -1,6 +1,8 @@
 $(function() {
     // Draws the terrain and people  onto the map
     function drawMap(map){
+        console.log("drawing map");
+        $("svg").remove();
         var svgContainer = d3.select(".display")
         .append("svg")
         .attr("width", svgSize.width)
@@ -111,6 +113,9 @@ $(function() {
     var gridSize = { x:20, y:15 };
 
     var svgSize = getSvgSize(gridSize, squareLength);
-    getMap(gridSize, ratios,drawMap);
+    window.setInterval(function(){
+        getMap(gridSize, ratios,drawMap);
+        console.log(gridSize);
+    },1000);
 }
 );

@@ -36,11 +36,11 @@ def returnScreen():
         #generate 20 random tiles
         screen=[]
         for i in range (1,20):
-                num1=random.randint(0,19);
-                num2=random.randint(0,19);
+                num1=randint(0,19)
+                num2=randint(0,19)
                 #tile = {'x':num1,'y':num2,'type':{}}
                 screen.append({'x':num1,'y':num2,'type':{}}) 
-        users=[{'x':5,'y':10}];
+        users=[{'x':5,'y':10}]
         return  {"tiles":screen,"users":users}
 
 @bottle.get('/<filename>')
