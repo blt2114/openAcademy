@@ -1,4 +1,3 @@
-#Driver Function
 import pymongo
 import bottle #micro-framework
 import sys
@@ -30,25 +29,5 @@ def build_screen():
     screen1.pop('_id', None)
     return {'screen':screen1}
 
-#route to get the screen rendering
-@bottle.get("/genMap/")
-def returnScreen():
-        #generate 20 random tiles
-        screen=[]
-        for i in range (1,20):
-                num1=random.randint(0,19);
-                num2=random.randint(0,19);
-                #tile = {'x':num1,'y':num2,'type':{}}
-                screen.append({'x':num1,'y':num2,'type':{}}) 
-        users=[{'x':5,'y':10}];
-        return  {"tiles":screen,"users":users}
-
-@bottle.get('/<filename>')
-def serve_index(filename):
-    ##index_html = static_file('index.html','/Users/briantrippe/Documents/Developer/OpenAcademy/MongoDB/')
-    #print index_html
-    #return index_html
-    return bottle.static_file(filename, root='/Users/briantrippe/Documents/Developer/OpenAcademy/MongoDB/')
 bottle.debug(True)
 bottle.run(host='localhost', port=8080)
-
