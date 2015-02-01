@@ -111,6 +111,6 @@ $(function() {
     var gridSize = { x:20, y:15 };
 
     var svgSize = getSvgSize(gridSize, squareLength);
-    buildMap(gridSize, ratios,drawMap);
+    getMap(gridSize, ratios,drawMap);
 }
 );
