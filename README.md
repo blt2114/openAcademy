@@ -1,1 +1,4 @@
-# openAcademy
+# OpenAcademy
+
+Riaz, Nitesh, Brian
+
