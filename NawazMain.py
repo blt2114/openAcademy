@@ -18,13 +18,22 @@ connection = pymongo.Connection("mongodb://localhost", safe = True)
 db = connection.test
 world = db.world
 users = db.users
-db.users.insert({'x': 0, 'y': 0})
 
-@bottle.get("/generate_screen")
+def create_user():
+    user = {'x': randint(0,19), 'y':randint(0,19)}
+    db.users.insert(user)
+    user.pop('_id', None)
+    print user
+    return user
+
+@bottle.get("/generate_new_screen")
 def build_screen():
     screen1 = {}
     screen1['tiles'] = generate_tiles()
-    screen1['users'] = [{'x': 0, 'y':0}]
+    user1 = create_user()
+    screen1['users'] = user1
+    if user1 in screen1['tiles']:
+        screen1['tiles'].pop(user1)
     db.world.insert(screen1)
     screen1.pop('_id', None)
     return {'screen':screen1}
