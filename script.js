@@ -1,168 +1,116 @@
 $(function() {
+    // Draws the terrain and people  onto the map
+    function drawMap(map){
+        var svgContainer = d3.select(".display")
+        .append("svg")
+        .attr("width", svgSize.width)
+        .attr("height", svgSize.height);
+        var scales = getScale(gridSize, svgSize);
 
-  function getSvgSize(gridSize, squareLength) {
-    var width = gridSize.x * squareLength;
-    var height = gridSize.y * squareLength;
-    return { width:width, height:height };
-  }
+        drawCells(svgContainer, scales, map.grass, "grass");
+        drawCells(svgContainer, scales, map.rock, "rock");
+        drawCells(svgContainer, scales, map.lava, "lava");
+        drawCells(svgContainer, scales, map.person, "person");
 
-  function isBorder(x, y, gridSize) {
-    return x==0 || y == 0 || x == (gridSize.x-1) || y == (gridSize.y-1);
-  }
+        var groups = { path:svgContainer.append("g"),
+        position:svgContainer.append("g") };
 
-  function buildMap(gridSize, ratios) {
-    var map = { grid:[], grass:[], rock:[], lava:[] };
-    for (x = 0; x < gridSize.x; x++) {
-        map.grid[x] = [];
-        for (y = 0; y < gridSize.y; y++) {
-            var rock = Math.random() < ratios.rock;
-            var lava = Math.random() < ratios.lava;
-            var type = isBorder(x, y, gridSize)?"rock":"grass";
-            if(rock) {
-              type = "rock";
-            }
-            if(lava) {
-              type = "lava";
-            }
-            var cell = { x:x, y:y , type:type };
-            map.grid[x][y] = cell;
-            map[type].push(cell);
+        $('#commands').focus();
+
+    }
+
+    function getSvgSize(gridSize, squareLength) {
+        var width = gridSize.x * squareLength;
+        var height = gridSize.y * squareLength;
+        return { width:width, height:height };
+    }
+
+    /*
+     * function isBorder(x, y, gridSize) {
+        return x==0 || y == 0 || x == (gridSize.x-1) || y == (gridSize.y-1);
+    }*/
+
+    // Queries to server for the user's view and passes the result to the callback
+    function getMap(gridSize, ratios, cb) {
+        var screenJSON;
+        //Use JQuery to make an AJAX request for the JSON screen object
+        $.getJSON('genMap/', function(data) { 
+            var map = completeMap(gridSize,ratios,data["tiles"],data["users"]);
+            cb(map);
+        })
+    }
+
+    // Construct the map obj using the terrain and users arrays
+    function completeMap(gridSize,ratios,terrain,users){
+        var map = { grid:[], grass:[], rock:[], lava:[],person:[] };
+        for (var x =0 ; x<gridSize.x;x++){
+            map.grid[x]=[];
+        } 
+        var tiles =[];
+        // by default all tiles sent are rock
+        for (var i =0;i<terrain.length;i++){
+            var x_pos=terrain[i].x;
+            var y_pos=terrain[i].y;
+            cell ={x:x_pos,y:y_pos,type:"rock"}; 
+            tiles.push(cell);
+            map.grid[x_pos][y_pos]=cell;
+            map["rock"].push(cell);
         }
+        
+        for (var i =0;i<users.length;i++){
+            var x_pos=users[i].x;
+            var y_pos=users[i].y;
+            cell ={x:x_pos,y:y_pos,type:"person"}; 
+            tiles.push(cell);
+            map.grid[x_pos][y_pos]=cell;
+            map["person"].push(cell);
+        }
+        for (x = 0; x < gridSize.x; x++) {
+            map.grid[x] = [];
+            for (y = 0; y < gridSize.y; y++) {
+                var type="grass";
+                var used = false;
+                for (var i = 0;i < tiles.length;i++){
+                    if (tiles[i].x===x && tiles[i].y === y){
+                        used =true;
+                    }
+                }
+                if (!used){
+                    var cell = { x:x, y:y , type:type };
+                    map.grid[x][y] = cell;
+                    map[type].push(cell);
+                }
+            }
+
+        }
+        return map;
     }
-    return map;
-  }
 
-  function getScale(gridSize, svgSize) {
-    var xScale = d3.scale.linear().domain([0,gridSize.x]).range([0,svgSize.width]);
-    var yScale = d3.scale.linear().domain([0,gridSize.y]).range([0,svgSize.height]);
-    return { x:xScale, y:yScale };
-  }
-
-  function drawCells(svgContainer, scales, data, cssClass) {
-    var gridGroup = svgContainer.append("g");
-    var cells = gridGroup.selectAll("rect")
-                .data(data)
-                .enter()
-                .append("rect");
-    var cellAttributes = cells
-             .attr("x", function (d) { return scales.x(d.x); })
-             .attr("y", function (d) { return scales.y(d.y); })
-             .attr("width", function (d) { return squareLength; })
-             .attr("height", function (d) { return squareLength; })
-             .attr("class", cssClass);
-  }
-
-  function drawMowerHistory(groups, scales, path) {
-    // path
-    groups.path.selectAll(".path").remove();
-    var lineFunction = d3.svg.line()
-               .x(function(d) { return scales.x(d.x + 0.5); })
-               .y(function(d) { return scales.y(d.y + 0.5); })
-               .interpolate("linear");
-
-    var lineGraph = groups.path.append("path")
-                              .attr("d", lineFunction(path))
-                              .attr("class", "path")
-                              .attr("fill", "none");
-
-    // position
-    var circleData = groups.position.selectAll("circle").data(path);
-    circleData.exit().remove();
-    var circles = circleData.enter().append("circle");
-    var circleAttributes = circles
-             .attr("cx", function (d) { return scales.x(d.x + 0.5); })
-             .attr("cy", function (d) { return scales.y(d.y + 0.5); })
-             .attr("r", function (d) { return circleRadius; })
-             .attr("class", "position");
-
-    // position number
-    var textData = groups.position.selectAll("text").data(path);
-    textData.exit().remove();
-    var texts = textData.enter().append("text");
-    var textAttributes = texts
-             .attr("x", function (d) { return scales.x(d.x + 0.5); })
-             .attr("y", function (d) { return scales.y(d.y + 0.5); })
-             .attr("dy", ".31em")
-             .text(function(d,i) { return i; })
-             .attr("class", "positionNumber");
-  }
-
-  function pickRandomPosition(map) {
-    var grass = map.grass;
-    var i = Math.ceil(Math.random() * grass.length);
-    return grass[i];
-  }
-
-  function getNext(map, current, command) {
-    switch(command) {
-      case "U":
-        return map.grid[current.x][current.y-1];
-      case "D":
-        return map.grid[current.x][current.y+1];
-      case "R":
-        return map.grid[current.x+1][current.y];
-      case "L":
-        return map.grid[current.x-1][current.y];
-      default:
-        throw "Unexpected command : "+command;
-      }
-  }
-
-  function executeCommands(e) {
-    var content = $('#commands').val();
-    content = content.toUpperCase().replace(/[^UDRL]/g, "");
-    $('#commands').val(content);
-    var path = [start];
-    var current = start;
-    for(i = 0; i < content.length; i++) {
-      var next = getNext(map, current, content[i]);
-      switch(next.type) {
-        case "grass":
-          path.push(next);
-          current = next;
-          break;
-        case "rock":
-          // stay at the same place
-          break;
-        case "lava":
-          drawMowerHistory(groups, scales, path);
-          alert("The mower turned into ashes, as predicted.", "Start again.");
-          $('#commands').val("");
-          drawMowerHistory(groups, scales, [start]);
-          return;
-        default:
-          throw "Unexpected terrain type "+next.type;
-      }
+    function getScale(gridSize, svgSize) {
+        var xScale = d3.scale.linear().domain([0,gridSize.x]).range([0,svgSize.width]);
+        var yScale = d3.scale.linear().domain([0,gridSize.y]).range([0,svgSize.height]);
+        return { x:xScale, y:yScale };
     }
-    drawMowerHistory(groups, scales, path);
-  }
 
-  var squareLength = 40;
-  var circleRadius = 15;
-  var ratios = { rock:0.05, lava:0.05 };
-  var gridSize = { x:20, y:15 };
+    function drawCells(svgContainer, scales, data, cssClass) {
+        var gridGroup = svgContainer.append("g");
+        var cells = gridGroup.selectAll("rect")
+            .data(data)
+            .enter()
+            .append("rect");
+        var cellAttributes = cells
+            .attr("x", function (d) { return scales.x(d.x); })
+            .attr("y", function (d) { return scales.y(d.y); })
+            .attr("width", function (d) { return squareLength; })
+            .attr("height", function (d) { return squareLength; })
+            .attr("class", cssClass);
+    }
+    var squareLength = 40;
+    var circleRadius = 15;
+    var ratios = { rock:0.05, lava:0.05 };
+    var gridSize = { x:20, y:15 };
 
-  var svgSize = getSvgSize(gridSize, squareLength);
-  var map = buildMap(gridSize, ratios);
-  var start = pickRandomPosition(map)
-
-  var svgContainer = d3.select(".display")
-                          .append("svg")
-                            .attr("width", svgSize.width)
-                            .attr("height", svgSize.height);
-  var scales = getScale(gridSize, svgSize);
-
-  drawCells(svgContainer, scales, map.grass, "grass");
-  drawCells(svgContainer, scales, map.rock, "rock");
-  drawCells(svgContainer, scales, map.lava, "lava");
-
-  var groups = { path:svgContainer.append("g"),
-                  position:svgContainer.append("g") };
-
-  $('#commands').on('input', executeCommands);
-
-  drawMowerHistory(groups, scales, [start]);
-
-  $('#commands').focus();
-  
-});
+    var svgSize = getSvgSize(gridSize, squareLength);
+    buildMap(gridSize, ratios,drawMap);
+}
+);
