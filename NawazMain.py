@@ -2,7 +2,7 @@ import pymongo
 import bottle #micro-framework
 import sys
 from random import randint
-from bottle import route, run, template
+from bottle import route, run, template, request
 def generate_tiles():
     #generate 20 random tiles
     tiles=[]
@@ -37,7 +37,6 @@ def load_screen():
     screen.pop('_id', None)
     for user in screen["users"]:
         user.pop('_id',None)
-#    print screen
     return {'screen':screen}
 
 # not used
@@ -50,38 +49,31 @@ def build_screen():
     screen1.pop('_id', None)
     return {'screen':screen1}
 
-@bottle.route('/move/<direction>')
-def move(direction):
+@route("/move", method="POST")
+def postResource():
 	user = users.find_one()
 	uid =user["_id"]
 	x = user["x"]
 	y = user["y"]
 
         screen = world.find_one()
-        screen_id= screen["_id"]
+        direction = bottle.request.json['move']
+        
         if direction == "up":
-                
                 users.update({"_id": uid}, {"$inc" : {"y" : 1}})
                 world.update({"users":{"$elemMatch":{"_id":uid}}},{"$inc":{'users.$.y':-1}});
-                #world.update({"_id":screen_id,users."_id": uid},{"$inc" : {"users.y" : 1}}) 
-                #world.update({"_id": screen},{"$inc" : {"y" : 1}}) 
         elif direction == "down":
                 users.update({"_id": uid}, {"$inc" : {"y" : -1}})
                 world.update({"users":{"$elemMatch":{"_id":uid}}},{"$inc":{'users.$.y':1}});
-#                world.update({"_id": screen_id},{"$inc" : {"y" : -1}}) 
-                #world.update({"_id": uid},{"$inc" : {"y" : -1}}) 
         elif direction == "left":
                 users.update({"_id": uid}, {"$inc" : {"x" : -1}})
                 world.update({"users":{"$elemMatch":{"_id":uid}}},{"$inc":{'users.$.x':-1}});
-                #world.update({"_id": uid},{"$inc" : {"y" : -1}}) 
-#                world.update({"_id": screen_id},{"$inc" : {"user.y" : -1}}) 
         elif direction == "right":
                 users.update({"_id": uid}, {"$inc" : {"x" : 1}})
-                #world.update({"_id": uid},{"$inc" : {"y" : 1}}) 
                 world.update({"users":{"$elemMatch":{"_id":uid}}},{"$inc":{'users.$.x':1}});
-                #world.update({"_id": screen_id},{"$inc" : {"users" : 1}}) 
-        bottle.redirect("/index.html")
         return
+
+
 
 @bottle.get('/<filename>')
 def serve_index(filename):

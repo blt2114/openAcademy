@@ -1,5 +1,36 @@
 $(function() {
     // Draws the terrain and people  onto the map
+        window.onkeydown = function move(keyEvent) {
+	        console.log(keyEvent.keyCode);
+                var squareLength = 40;
+                var circleRadius = 15;
+                var ratios = { rock:0.05, lava:0.05 };
+                var gridSize = { x:20, y:15 };
+
+                var svgSize = getSvgSize(gridSize, squareLength);
+                var dir ="";
+	        if (keyEvent.keyCode == 37) {
+                        dir = "left";
+	        }
+	        else if (keyEvent.keyCode == 38) {
+                        dir = "up";
+	        }
+	        else if (keyEvent.keyCode == 39) {
+                        dir = "right";
+	        }
+	        else if (keyEvent.keyCode == 40) {
+                        dir = "down"
+	        }
+                $.ajax({
+                    type: "POST",
+                    url: "/move",
+                    data: JSON.stringify({"move":dir}),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                });
+
+                getMap(gridSize, ratios,drawMap);
+        }
     function drawMap(map){
         console.log("drawing map");
         $("svg").remove();
@@ -117,9 +148,6 @@ $(function() {
     var gridSize = { x:20, y:15 };
 
     var svgSize = getSvgSize(gridSize, squareLength);
-    window.setInterval(function(){
         getMap(gridSize, ratios,drawMap);
-        console.log(gridSize);
-    },25);
 }
 );
