@@ -3,31 +3,31 @@ body {
 }
 
 .svg {
-	border: 1px solid black;
+    border: 1px solid black;
 }
 
 
 /**TEXTURES FOR DISPLAY**/
 .grass {
-	fill: #3CAB26;
-	stroke-width: 1px;
-	stroke: #2D801C;
+    fill: #3CAB26;
+    stroke-width: 1px;
+    stroke: #2D801C;
 }
 
 .rock {
-	fill: #858585;
-	stroke-width: 1px;
-	stroke: #C7C7C7;
+    fill: #858585;
+    stroke-width: 1px;
+    stroke: #C7C7C7;
 }
 
 .person {
-	fill: red;
-	stroke-width: 1px;
-	stroke: #FF6600;
+    fill:red; 
+    stroke-width: 3px;
+    stroke: #2973F2;
 }
 
 .lava {
-	fill: #B3210B;
-	stroke-width: 1px;
-	stroke: #FF6600;
+    fill: #B3210B;
+    stroke-width: 1px;
+    stroke: #FF6600;
 }

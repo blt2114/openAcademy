@@ -13,7 +13,6 @@ def generate_tiles():
                 tiles.append({'x':x,'y':y})
     return tiles 
 
-#@bottle.get('/login'):
 connection = pymongo.Connection("mongodb://localhost", safe = True)
 db = connection.test
 world = db.world
@@ -26,17 +25,33 @@ def create_user():
     print user
     return user
 
-@bottle.get("/generate_new_screen")
+@bottle.get("/load_screen")
+def load_screen():
+    screen1 = {}
+    if (world.count()==0):
+        screen1['tiles'] = generate_tiles()
+        user1 = create_user()
+        if user1 in screen1['tiles']:
+            screen1['tiles'].pop(user1)
+        screen1['users'] = [user1]
+        world.insert(screen1)
+    screen = world.find_one()
+    screen.pop('_id', None)
+    return {'screen':screen}
+
+# not used
+@bottle.get("/generate_screen")
 def build_screen():
     screen1 = {}
     screen1['tiles'] = generate_tiles()
-    user1 = create_user()
-    screen1['users'] = user1
-    if user1 in screen1['tiles']:
-        screen1['tiles'].pop(user1)
+    screen1['users'] = [{'x': 0, 'y':0}]
     db.world.insert(screen1)
     screen1.pop('_id', None)
     return {'screen':screen1}
 
+@bottle.get('/<filename>')
+def serve_index(filename):
+    return bottle.static_file(filename, root='/Users/briantrippe/Documents/Developer/OpenAcademy/MongoDB/')
 bottle.debug(True)
 bottle.run(host='localhost', port=8080)
+

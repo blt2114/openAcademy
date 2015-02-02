@@ -36,8 +36,12 @@ $(function() {
     function getMap(gridSize, ratios, cb) {
         var screenJSON;
         //Use JQuery to make an AJAX request for the JSON screen object
-        $.getJSON('genMap/', function(data) { 
-            var map = completeMap(gridSize,ratios,data["tiles"],data["users"]);
+        $.getJSON('load_screen', function(data) { 
+            console.log("data:", data);
+            screen_data=data["screen"];
+            console.log("screen data, users:", screen_data["users"]);
+
+            var map = completeMap(gridSize,ratios,screen_data["tiles"],screen_data["users"]);
             cb(map);
         })
     }
