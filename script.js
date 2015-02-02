@@ -120,6 +120,6 @@ $(function() {
     window.setInterval(function(){
         getMap(gridSize, ratios,drawMap);
         console.log(gridSize);
-    },1000);
+    },25);
 }
 );
