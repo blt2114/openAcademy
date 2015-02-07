@@ -5,7 +5,7 @@ $(function() {
                 var squareLength = 40;
                 var circleRadius = 15;
                 var ratios = { rock:0.05, lava:0.05 };
-                var gridSize = { x:20, y:15 };
+                var gridSize = { x:20, y:20 };
 
                 var svgSize = getSvgSize(gridSize, squareLength);
                 var dir ="";
@@ -145,7 +145,7 @@ $(function() {
     var squareLength = 40;
     var circleRadius = 15;
     var ratios = { rock:0.05, lava:0.05 };
-    var gridSize = { x:20, y:15 };
+    var gridSize = { x:20, y:20 };
 
     var svgSize = getSvgSize(gridSize, squareLength);
         getMap(gridSize, ratios,drawMap);
