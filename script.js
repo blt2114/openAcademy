@@ -1,10 +1,7 @@
 $(function() {
     // Draws the terrain and people  onto the map
         window.onkeydown = function move(keyEvent) {
-	        console.log(keyEvent.keyCode);
                 var squareLength = 40;
-                var circleRadius = 15;
-                var ratios = { rock:0.05, lava:0.05 };
                 var gridSize = { x:20, y:20 };
 
                 var svgSize = getSvgSize(gridSize, squareLength);
@@ -29,10 +26,9 @@ $(function() {
                     dataType: "json",
                 });
 
-                getMap(gridSize, ratios,drawMap);
+                getMap(gridSize,drawMap);
         }
     function drawMap(map){
-        console.log("drawing map");
         $("svg").remove();
         var svgContainer = d3.select(".display")
         .append("svg")
@@ -64,21 +60,19 @@ $(function() {
     }*/
 
     // Queries to server for the user's view and passes the result to the callback
-    function getMap(gridSize, ratios, cb) {
+    function getMap(gridSize, cb) {
         var screenJSON;
         //Use JQuery to make an AJAX request for the JSON screen object
         $.getJSON('load_screen', function(data) { 
-            console.log("data:", data);
             screen_data=data["screen"];
-            console.log("screen data, users:", screen_data["users"]);
 
-            var map = completeMap(gridSize,ratios,screen_data["tiles"],screen_data["users"]);
+            var map = completeMap(gridSize,screen_data["tiles"],screen_data["users"]);
             cb(map);
         })
     }
 
     // Construct the map obj using the terrain and users arrays
-    function completeMap(gridSize,ratios,terrain,users){
+    function completeMap(gridSize,terrain,users){
         var map = { grid:[], grass:[], rock:[], lava:[],person:[] };
         for (var x =0 ; x<gridSize.x;x++){
             map.grid[x]=[];
@@ -143,11 +137,9 @@ $(function() {
             .attr("class", cssClass);
     }
     var squareLength = 40;
-    var circleRadius = 15;
-    var ratios = { rock:0.05, lava:0.05 };
     var gridSize = { x:20, y:20 };
 
     var svgSize = getSvgSize(gridSize, squareLength);
-        getMap(gridSize, ratios,drawMap);
+        getMap(gridSize, drawMap);
 }
 );

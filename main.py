@@ -21,8 +21,8 @@ def generate_tiles():
 
 
 client=MongoClient()
-world=client.world.world
-users=client.users.users
+world=client.game.world
+users=client.game.users
 
 def create_user():
     user = {'X':1,'Y':1,'x': randint(10,15), 'y':randint(10,15)}
@@ -54,15 +54,10 @@ def get_screen(user):
 def load_screen():
     global users
     screen1 = {}
-    print str(users)
     if (world.count()==0):
         create_world()
-        #user1 = create_user()
-        user1={"X":1,"Y":1,"x":3,"y":5}
-
-        print "about to insert user"+str(user1)
+        user1 = create_user()
         users.insert(user1)
-        print "just inserted user:"+str(user1)
         screen = get_screen(user1)
         users_in_screen=screen['users']
         users_in_screen.append(user1)
@@ -104,7 +99,6 @@ def update_position(user,move):
     user['y']=new_pos['y']
     user['x']=new_pos['x']
     if ((new_pos['X']==user['X'] ) and (new_pos['Y']==user['Y'])):
-        print "New Position in same screen"
         for u in screen['users']:
             if u["_id"]==user["_id"]:
                 u['x']=new_pos['x']
@@ -114,10 +108,8 @@ def update_position(user,move):
     else:
         user['Y']=new_pos['Y']
         user['X']=new_pos['X']
-        print "new Position in new screen"
         for u in screen['users']:
             if u["_id"]==user["_id"]:
-                print "found user in old screen"
                 screen['users'].remove(u) 
                 world.update({"_id":screen['_id']},{"$set":screen})
                 break
@@ -164,7 +156,6 @@ def terrain_at(pos):
 #different terrain types '''
 def can_move(user,move):
     new_pos = new_coord(user,move)
-    print "new position is:"+str(new_pos)
     return not terrain_at(new_pos)
 
 
