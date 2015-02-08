@@ -71,6 +71,13 @@ def load_screen():
       # ''' if user1 in screen1['tiles']:
        #     screen1['tiles'].pop(user1)'''
     #in future this can find the user based on a cookie passed in
+    #Experimenting with cookies
+    if request.get_cookie("visited"):
+        print request.get_cookie("visited")
+    else:
+        response.set_cookie("visited", "yes")
+        print "yo"
+        print resquest.get_cookie("visited")
     current_user=find_user()
     screen = get_screen(current_user)
     screen.pop('_id', None)
