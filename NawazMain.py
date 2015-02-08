@@ -1,4 +1,5 @@
 import pymongo
+from pymongo import MongoClient
 import bottle #micro-framework
 import sys
 from random import randint
@@ -18,10 +19,10 @@ def generate_tiles():
                 tiles.append({'x':x,'y':y})
     return tiles 
 
-connection = pymongo.Connection("mongodb://localhost", safe = True)
-db = connection.test
-world = db.world
-users = db.users
+
+client=MongoClient()
+world=client.world.world
+users=client.users.users
 
 def create_user():
     user = {'X':1,'Y':1,'x': randint(10,15), 'y':randint(10,15)}
@@ -51,17 +52,21 @@ def get_screen(user):
 
 @bottle.get("/load_screen")
 def load_screen():
+    global users
     screen1 = {}
+    print str(users)
     if (world.count()==0):
         create_world()
-        user1 = create_user()
+        #user1 = create_user()
+        user1={"X":1,"Y":1,"x":3,"y":5}
+
         print "about to insert user"+str(user1)
         users.insert(user1)
         print "just inserted user:"+str(user1)
         screen = get_screen(user1)
-        users=screen['users']
-        users.append(user)
-        screen['users']=users
+        users_in_screen=screen['users']
+        users_in_screen.append(user1)
+        screen['users']=users_in_screen
         world.update({"_id":screen['_id']},{"$set":screen})
       # ''' if user1 in screen1['tiles']:
        #     screen1['tiles'].pop(user1)'''
@@ -89,11 +94,10 @@ MOVE_DIR = {"up":(0,-1),"down":(0,1),"left":(-1,0),"right":(1,0)}
 def update_position(user,move):
     screen = get_screen(user)
     new_pos = new_coord(user,move)
-    user['Y']=new_pos['Y']
     user['y']=new_pos['y']
-    user['X']=new_pos['X']
     user['x']=new_pos['x']
-    if ((new_pos['X']==user['X'] )& (new_pos['Y']==user['Y'])):
+    if ((new_pos['X']==user['X'] ) and (new_pos['Y']==user['Y'])):
+        print "New Position in same screen"
         for u in screen['users']:
             if u["_id"]==user["_id"]:
                 u['x']=new_pos['x']
@@ -101,8 +105,12 @@ def update_position(user,move):
                 break
         world.update({"_id":screen["_id"]},{"$set":{"users":screen["users"]}})
     else:
+        user['Y']=new_pos['Y']
+        user['X']=new_pos['X']
+        print "new Position in new screen"
         for u in screen['users']:
             if u["_id"]==user["_id"]:
+                print "found user in old screen"
                 screen['users'].remove(u) 
                 world.update({"_id":screen['_id']},{"$set":screen})
                 break
@@ -112,8 +120,8 @@ def update_position(user,move):
     users.update({"_id": user["_id"]}, {"$set" : user})
     #world.update({"users":{"$elemMatch":{"_id":uid}}},{"$inc":{'users.$.'+AXES[move]:DIRECTIONS[move]}})
 
-'''#TODO update this to return new poosition including screen position and
-relative position'''
+#TODO update this to return new poosition including screen position and
+#relative position'''
 def new_coord(user,move):
     X=user['X']
     Y=user['Y']
@@ -145,8 +153,8 @@ def terrain_at(pos):
         return True
     return False
 
-'''#TODO: potentially add functionality allow different users to move on
-different terrain types '''
+#TODO: potentially add functionality allow different users to move on
+#different terrain types '''
 def can_move(user,move):
     new_pos = new_coord(user,move)
     print "new position is:"+str(new_pos)
@@ -155,6 +163,7 @@ def can_move(user,move):
 
 #TODO: add functionality to look up specific user based on browser cookie .
 def find_user():
+    global users
     user =users.find_one()
     return user
 
