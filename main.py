@@ -3,7 +3,7 @@ from pymongo import MongoClient
 import bottle #micro-framework
 import sys
 from random import randint
-from bottle import route, run, template, request
+from bottle import route, run, template, request, response
 
 SCREEN_LEN = 20 #number of spaces per row and column
 WORLD_LEN = 10 #number of screens per row and column of the world
@@ -26,6 +26,9 @@ users=client.game.users
 
 def create_user():
     user = {'X':1,'Y':1,'x': randint(10,15), 'y':randint(10,15)}
+    users.insert(user);
+    user["str_id"]=str(user["_id"])
+    users.update({"_id": user["_id"]}, {"$set" : user})
     return user
 
 def create_world():
@@ -56,39 +59,35 @@ def load_screen():
     screen1 = {}
     if (world.count()==0):
         create_world()
-        user1 = create_user()
-        users.insert(user1)
-        screen = get_screen(user1)
-        users_in_screen=screen['users']
-        users_in_screen.append(user1)
-        screen['users']=users_in_screen
-        world.update({"_id":screen['_id']},{"$set":screen})
-      # ''' if user1 in screen1['tiles']:
-       #     screen1['tiles'].pop(user1)'''
+    # ''' if user1 in screen1['tiles']:
+    #     screen1['tiles'].pop(user1)'''
     #in future this can find the user based on a cookie passed in
     #Experimenting with cookies
+    user_id=None
     if request.get_cookie("visited"):
-        print request.get_cookie("visited")
+        user_str_id= request.get_cookie("visited")
+        user = users.find_one({"str_id":user_str_id})
+        user_id=user["_id"]
     else:
-        response.set_cookie("visited", "yes")
-        print "yo"
-        print resquest.get_cookie("visited")
-    current_user=find_user()
+        user = create_user()
+        bottle.response.set_cookie("visited", user["str_id"])
+        screen = get_screen(user)
+        users_in_screen=screen['users']
+        users_in_screen.append(user)
+        screen['users']=users_in_screen
+        world.update({"_id":screen['_id']},{"$set":screen})
+        user_id = user["_id"] 
+    
+
+    current_user=find_user(user_id)
+    if current_user is None:
+        print "user with id "+str(user_id)+" not found"
+        return
     screen = get_screen(current_user)
     screen.pop('_id', None)
     for user in screen["users"]:
         user.pop('_id',None)
     return {'screen':screen}
-
-# not used
-@bottle.get("/generate_screen")
-def build_screen():
-    screen1 = {}
-    screen1['tiles'] = generate_tiles()
-    screen1['users'] = [{'x': 0, 'y':0}]
-    db.world.insert(screen1)
-    screen1.pop('_id', None)
-    return {'screen':screen1}
 
 AXES = {"up":'y',"down":'y',"left":'x',"right":'x'}
 DIRECTIONS = {"up":-1,"down":1,"left":-1,"right":1}
@@ -119,8 +118,8 @@ def update_position(user,move):
     users.update({"_id": user["_id"]}, {"$set" : user})
     #world.update({"users":{"$elemMatch":{"_id":uid}}},{"$inc":{'users.$.'+AXES[move]:DIRECTIONS[move]}})
 
-#TODO update this to return new poosition including screen position and
-#relative position'''
+#calculates the a new desired position of a user based on direction.
+# this includes both local and relative coordinates
 def new_coord(user,move):
     X=user['X']
     Y=user['Y']
@@ -141,7 +140,7 @@ def new_coord(user,move):
     y = (y+dy)%SCREEN_LEN
     return {"X":X,"Y":Y,"x":x,"y":y}
 
-#TODO: update to check in corrects screen
+# checks the if the position provided has a tile on it.
 def terrain_at(pos):
     screen = get_screen(pos)
     screen = world.find({"X":pos["X"],"Y":pos["Y"]})
@@ -152,22 +151,42 @@ def terrain_at(pos):
         return True
     return False
 
+# checks if the position has a user on it.
+#TODO fix so that actually checks if a user is there
+def user_at(pos):
+    screen = get_screen(pos)
+    screen = world.find({"X":pos["X"],"Y":pos["Y"]})
+    if not screen.count():
+        return True
+    #this currently fails because users contain other additional fields
+    user = world.find({"X":pos["X"],"Y":pos["Y"],"users":{"x":pos['x'],"y":pos['y']}})
+    if user.count():
+        return True
+    return False
+
 #TODO: potentially add functionality allow different users to move on
 #different terrain types '''
 def can_move(user,move):
     new_pos = new_coord(user,move)
-    return not terrain_at(new_pos)
+    
+    if user_at(new_pos):
+        return False
+    if terrain_at(new_pos):
+        return False
+    return True
 
 
-#TODO: add functionality to look up specific user based on browser cookie .
-def find_user():
-    global users
-    user =users.find_one()
+# finds specific user by its _id field
+def find_user(user_id):
+    user =users.find_one({"_id":user_id})
     return user
 
 @route("/move", method="POST")
 def postResource():
-    user = find_user()
+    user_id=None
+    if request.get_cookie("visited"):
+        user_id= request.get_cookie("visited")
+    user = users.find_one({"str_id":user_id})
     if (not user):
         sys.stderr.write("User Not Found!")
         return
