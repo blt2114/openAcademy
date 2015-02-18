@@ -159,7 +159,7 @@ def user_at(pos):
     if not screen.count():
         return True
     #this currently fails because users contain other additional fields
-    user = world.find({"X":pos["X"],"Y":pos["Y"],"users":{"x":pos['x'],"y":pos['y']}})
+    user = world.find({"X":pos["X"],"Y":pos["Y"],"users":{"$elemMatch":{"x":pos['x'],"y":pos['y']}}})
     if user.count():
         return True
     return False
