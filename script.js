@@ -141,5 +141,8 @@ $(function() {
 
     var svgSize = getSvgSize(gridSize, squareLength);
         getMap(gridSize, drawMap);
+        window.setInterval(function(){
+            getMap(gridSize,drawMap);
+        },100);
 }
 );
