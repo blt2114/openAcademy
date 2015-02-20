@@ -97,6 +97,7 @@ def update_position(user,move):
     new_pos = new_coord(user,move)
     user['y']=new_pos['y']
     user['x']=new_pos['x']
+    #if playermove does not result in changing screens
     if ((new_pos['X']==user['X'] ) and (new_pos['Y']==user['Y'])):
         for u in screen['users']:
             if u["_id"]==user["_id"]:
@@ -104,6 +105,7 @@ def update_position(user,move):
                 u['y']=new_pos['y']
                 break
         world.update({"_id":screen["_id"]},{"$set":{"users":screen["users"]}})
+    #else if playermove causes player to move between screens
     else:
         user['Y']=new_pos['Y']
         user['X']=new_pos['X']
