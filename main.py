@@ -1,9 +1,10 @@
 import pymongo
-from pymongo import MongoClient
+from pymongo import MongoClient 
 import bottle #micro-framework
 import sys
 from random import randint
 from bottle import route, run, template, request, response
+from bson.objectid import ObjectId
 
 SCREEN_LEN = 20 #number of spaces per row and column
 WORLD_LEN = 10 #number of screens per row and column of the world
@@ -25,9 +26,9 @@ world=client.game.world
 users=client.game.users
 
 def create_user():
+    print "creating user"
     user = {'X':1,'Y':1,'x': randint(10,15), 'y':randint(10,15)}
-    users.insert(user);
-    user["str_id"]=str(user["_id"])
+    users.insert(user)
     users.update({"_id": user["_id"]}, {"$set" : user})
     return user
 
@@ -55,22 +56,19 @@ def get_screen(user):
 
 @bottle.get("/load_screen")
 def load_screen():
-    global users
     screen1 = {}
     if (world.count()==0):
         create_world()
-    # ''' if user1 in screen1['tiles']:
-    #     screen1['tiles'].pop(user1)'''
-    #in future this can find the user based on a cookie passed in
-    #Experimenting with cookies
     user_id=None
-    if request.get_cookie("visited"):
-        user_str_id= request.get_cookie("visited")
-        user = users.find_one({"str_id":user_str_id})
-        user_id=user["_id"]
+    if request.get_cookie("user_id"):
+        user_str_id= request.get_cookie("user_id")
+
+        #convert from string to ObjectId type.
+#        user = users.find_one({"_id":ObjectId(user_str_id)})
+        user_id=ObjectId(user_str_id)#user["_id"]
     else:
         user = create_user()
-        bottle.response.set_cookie("visited", user["str_id"])
+        bottle.response.set_cookie("user_id", str(user["_id"]))
         screen = get_screen(user)
         users_in_screen=screen['users']
         users_in_screen.append(user)
@@ -86,15 +84,19 @@ def load_screen():
     screen = get_screen(current_user)
     screen.pop('_id', None)
     for user in screen["users"]:
+        user.pop('Y')
+        user.pop('X')
         user.pop('_id',None)
+    screen.pop('X')
+    screen.pop('Y')
     return {'screen':screen}
 
 AXES = {"up":'y',"down":'y',"left":'x',"right":'x'}
 DIRECTIONS = {"up":-1,"down":1,"left":-1,"right":1}
 MOVE_DIR = {"up":(0,-1),"down":(0,1),"left":(-1,0),"right":(1,0)}
 def update_position(user,move):
-    screen = get_screen(user)
-    new_pos = new_coord(user,move)
+    screen= get_screen(user)
+    new_pos= new_coord(user,move)
     user['y']=new_pos['y']
     user['x']=new_pos['x']
     if ((new_pos['X']==user['X'] ) and (new_pos['Y']==user['Y'])):
@@ -184,9 +186,9 @@ def find_user(user_id):
 @route("/move", method="POST")
 def postResource():
     user_id=None
-    if request.get_cookie("visited"):
-        user_id= request.get_cookie("visited")
-    user = users.find_one({"str_id":user_id})
+    if request.get_cookie("user_id"):
+        user_id= request.get_cookie("user_id")
+    user = users.find_one({"_id":ObjectId(user_id)})
     if (not user):
         sys.stderr.write("User Not Found!")
         return

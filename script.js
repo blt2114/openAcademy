@@ -40,6 +40,7 @@ $(function() {
         drawCells(svgContainer, scales, map.rock, "rock");
         drawCells(svgContainer, scales, map.lava, "lava");
         drawCells(svgContainer, scales, map.person, "person");
+        drawCells(svgContainer, scales, map.player, "player");//  the current player
 
         var groups = { path:svgContainer.append("g"),
         position:svgContainer.append("g") };
@@ -73,7 +74,7 @@ $(function() {
 
     // Construct the map obj using the terrain and users arrays
     function completeMap(gridSize,terrain,users){
-        var map = { grid:[], grass:[], rock:[], lava:[],person:[] };
+        var map = { grid:[], grass:[], rock:[], lava:[],person:[],player:[] };
         for (var x =0 ; x<gridSize.x;x++){
             map.grid[x]=[];
         } 
@@ -91,10 +92,17 @@ $(function() {
         for (var i =0;i<users.length;i++){
             var x_pos=users[i].x;
             var y_pos=users[i].y;
-            cell ={x:x_pos,y:y_pos,type:"person"}; 
+            if (users[i].hasOwnProperty('current_player')){
+                console.log("found current player at x:",x_pos," y: ",y_pos);
+                cell ={x:x_pos,y:y_pos,type:"player"}; 
+                map["player"].push(cell);
+            }else{
+                console.log("found other player at x:",x_pos," y: ",y_pos);
+                cell ={x:x_pos,y:y_pos,type:"person"}; 
+                map["person"].push(cell);
+            }
             tiles.push(cell);
             map.grid[x_pos][y_pos]=cell;
-            map["person"].push(cell);
         }
         for (x = 0; x < gridSize.x; x++) {
             map.grid[x] = [];
