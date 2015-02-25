@@ -6,18 +6,20 @@ from random import randint
 from bottle import route, run, template, request, response
 from bson.objectid import ObjectId
 
-SCREEN_LEN = 20 #number of spaces per row and column
+SCREEN_LEN = 25 #number of spaces per row and column
 WORLD_LEN = 10 #number of screens per row and column of the world
 
 
 def generate_tiles():
-    #generate tiles in random positions in 20X20 grid.  1/6 of positions
+    #generate tiles in random positions in SCREEN_LENXSCREEN_LEN  grid.  1/6 of positions
     tiles=[]
-    for x in range(20):
-        for y in range(20):
+    for x in range(SCREEN_LEN):
+        for y in range(SCREEN_LEN):
             c = randint(1,6)
             if c > 5:
-                tiles.append({'x':x,'y':y})
+                tiles.append({'type':"rock",'x':x,'y':y})
+            elif c>4:
+                tiles.append({'type':"potion",'x':x,'y':y})
     return tiles 
 
 # establish connection with game db
@@ -79,23 +81,28 @@ def load_screen():
         screen = get_screen(current_user)
         screen['users'].append(current_user)
         world.update({"_id":screen['_id']},{"$set":screen})
-    if current_user is None:
-        print "error in getScreen, user is None"
 
     screen = get_screen(current_user)
+    
+    sound = None
+    if "sound" in current_user:
+        sound=current_user["sound"]
+        current_user.pop("sound")
     screen.pop('_id', None)
     for user in screen["users"]:
-        user.pop('_id');
+        user.pop('_id')
         user.pop('Y')
         user.pop('X')
     screen.pop('X')
     screen.pop('Y')
     current_user['_id']=str(current_user['_id'])
-    return {'screen':screen,'player':current_user}
+    users.update({"_id":user_id},{"$unset":{'sound':""}})
+    return {'screen':screen,'player':current_user,"sound":sound}
 
 AXES = {"up":'y',"down":'y',"left":'x',"right":'x'}
 DIRECTIONS = {"up":-1,"down":1,"left":-1,"right":1}
 MOVE_DIR = {"up":(0,-1),"down":(0,1),"left":(-1,0),"right":(1,0)}
+# updates the users position as well as score and sound if as necessary
 def update_position(user,move):
     screen= get_screen(user)
     new_pos= new_coord(user,move)
@@ -122,6 +129,13 @@ def update_position(user,move):
         new_screen['users'].append(user)
         world.update({"_id":new_screen['_id']},{"$set":new_screen})
     users.update({"_id": user["_id"]}, {"$set" : user})
+    if potion_at(new_pos):
+        users.update({"_id":user['_id']},{"$inc":{'health':+10}})
+        users.update({"_id":user['_id']},{"$set":{'sound':"potion"}})
+        world.update({"_id":screen['_id']},{"$pull":{"tiles":{"type":'potion',"x":new_pos['x'],"y":new_pos['y']}}})
+    else:
+        users.update({"_id":user['_id']},{"$inc":{'score':+1}})
+        users.update({"_id":user['_id']},{"$set":{'sound':"score"}})
     #world.update({"users":{"$elemMatch":{"_id":uid}}},{"$inc":{'users.$.'+AXES[move]:DIRECTIONS[move]}})
 
 #calculates the a new desired position of a user based on direction.
@@ -146,13 +160,24 @@ def new_coord(user,move):
     y = (y+dy)%SCREEN_LEN
     return {"X":X,"Y":Y,"x":x,"y":y}
 
-# checks the if the position provided has a tile on it.
+# checks the if the position provided has a potion on it.
+def potion_at(pos):
+    screen = get_screen(pos)
+    screen = world.find({"X":pos["X"],"Y":pos["Y"]})
+    if not screen.count():
+        return True
+    tile = world.find({"X":pos["X"],"Y":pos["Y"],"tiles":{"type":"potion","x":pos['x'],"y":pos['y']}})
+    if tile.count():
+        return True
+    return False
+
+# checks the if the position provided has a rock on it.
 def terrain_at(pos):
     screen = get_screen(pos)
     screen = world.find({"X":pos["X"],"Y":pos["Y"]})
     if not screen.count():
         return True
-    tile = world.find({"X":pos["X"],"Y":pos["Y"],"tiles":{"x":pos['x'],"y":pos['y']}})
+    tile = world.find({"X":pos["X"],"Y":pos["Y"],"tiles":{"type":"rock","x":pos['x'],"y":pos['y']}})
     if tile.count():
         return True
     return False
@@ -209,9 +234,10 @@ def postResource():
 
     if can_move(user,move):
         update_position(user,move)
-        users.update({"_id":user_id},{"$inc":{'score':+1}})
     else:
         users.update({"_id":user_id},{"$inc":{'health':-1}})
+        users.update({"_id":user_id},{"$set":{'sound':"damage"}})
+
         print "invalid move"
 
 @bottle.get('/<filename>')

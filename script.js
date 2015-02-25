@@ -1,49 +1,54 @@
 $(function() {
+    var SCREEN_LEN=25;
+    var damageSound = new Audio('smash.mp3');
+    var scoreSound = new Audio('score.mp3');
+    var potionSound = new Audio('potion.mp3');
+    var gridSize = { x:SCREEN_LEN, y:SCREEN_LEN };
     // Draws the terrain and people  onto the map
-        window.onkeydown = function move(keyEvent) {
-                var squareLength = 40;
-                var gridSize = { x:20, y:20 };
+    window.onkeydown = function move(keyEvent) {
+        var squareLength = 20;
 
-                var svgSize = getSvgSize(gridSize, squareLength);
-                var dir ="";
-	        if (keyEvent.keyCode == 37) {
-                        dir = "left";
-	        }
-	        else if (keyEvent.keyCode == 38) {
-                        dir = "up";
-	        }
-	        else if (keyEvent.keyCode == 39) {
-                        dir = "right";
-	        }
-	        else if (keyEvent.keyCode == 40) {
-                        dir = "down"
-	        }
-                $.ajax({
-                    type: "POST",
-                    url: "/move",
-                    data: JSON.stringify({"move":dir}),
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                });
-
-                getMap(gridSize,drawMap,updatePlayerInfo);
+        var svgSize = getSvgSize(gridSize, squareLength);
+        var dir ="";
+        if (keyEvent.keyCode == 37) {
+            dir = "left";
         }
+        else if (keyEvent.keyCode == 38) {
+            dir = "up";
+        }
+        else if (keyEvent.keyCode == 39) {
+            dir = "right";
+        }
+        else if (keyEvent.keyCode == 40) {
+            dir = "down"
+        }
+        $.ajax({
+            type: "POST",
+            url: "/move",
+            data: JSON.stringify({"move":dir}),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+        });
+
+        getMap();
+        //getMap(gridSize,drawMap,updatePlayerInfo);
+    }
     function drawMap(map){
         $("svg").remove();
         var svgContainer = d3.select(".display")
-        .append("svg")
-        .attr("width", svgSize.width)
-        .attr("height", svgSize.height);
+            .append("svg")
+            .attr("width", svgSize.width)
+            .attr("height", svgSize.height);
         var scales = getScale(gridSize, svgSize);
 
         drawCells(svgContainer, scales, map.grass, "grass");
         drawCells(svgContainer, scales, map.rock, "rock");
-        drawCells(svgContainer, scales, map.lava, "lava");
+        drawCells(svgContainer, scales, map.potion, "potion");
         drawCells(svgContainer, scales, map.person, "person");
         drawCells(svgContainer, scales, map.player, "player");//  the current player
 
         var groups = { path:svgContainer.append("g"),
-        position:svgContainer.append("g") };
+            position:svgContainer.append("g") };
 
         $('#commands').focus();
 
@@ -55,29 +60,51 @@ $(function() {
         return { width:width, height:height };
     }
 
+    function playSound(sound){
+        soundObj=null;
+        if (sound == "score"){
+            soundObj=scoreSound;
+        }
+        if (sound == "potion"){
+            soundObj = potionSound;
+        }
+        if (sound == "damage"){
+            soundObj = damageSound;
+        }
+        if (soundObj!=null){
+            soundObj.pause();
+            soundObj.currentTime=0;
+            soundObj.play();
+        }
+
+    }
     /*
      * function isBorder(x, y, gridSize) {
-        return x==0 || y == 0 || x == (gridSize.x-1) || y == (gridSize.y-1);
-    }*/
+     return x==0 || y == 0 || x == (gridSize.x-1) || y == (gridSize.y-1);
+     }*/
 
     // Queries to server for the user's view and passes the result to the callback
-    function getMap(gridSize, map_cb,player_info_cb) {
+    //function getMap(gridSize, map_cb,player_info_cb) {
+    function getMap() {
         var screenJSON;
         //Use JQuery to make an AJAX request for the JSON screen object
         $.getJSON('load_screen', function(data) { 
             screen_data=data["screen"];
 
             var map = completeMap(gridSize,screen_data["tiles"],screen_data["users"]);
-            map_cb(map);
+            drawMap(map);
 
             player_data = data["player"];
-            player_info_cb(player_data);
+            updatePlayerInfo(player_data);
+
+            sound = data["sound"];
+            playSound(sound);
         })
     }
 
     // Construct the map obj using the terrain and users arrays
     function completeMap(gridSize,terrain,users){
-        var map = { grid:[], grass:[], rock:[], lava:[],person:[],player:[] };
+        var map = { grid:[], grass:[], rock:[], potion:[],person:[],player:[] };
         for (var x =0 ; x<gridSize.x;x++){
             map.grid[x]=[];
         } 
@@ -86,26 +113,28 @@ $(function() {
         for (var i =0;i<terrain.length;i++){
             var x_pos=terrain[i].x;
             var y_pos=terrain[i].y;
-            cell ={x:x_pos,y:y_pos,type:"rock"}; 
+            var type = terrain[i].type;
+            cell ={x:x_pos,y:y_pos,type:type}; 
             tiles.push(cell);
             map.grid[x_pos][y_pos]=cell;
-            map["rock"].push(cell);
+            map[type].push(cell);
         }
-        
+
         for (var i =0;i<users.length;i++){
             var x_pos=users[i].x;
             var y_pos=users[i].y;
             if (users[i].hasOwnProperty('current_player')){
-                console.log("found current player at x:",x_pos," y: ",y_pos);
                 cell ={x:x_pos,y:y_pos,type:"player"}; 
+                console.log("map.grid: ",map.grid);
+                map.grid[x_pos][y_pos]=cell;
                 map["player"].push(cell);
             }else{
-                console.log("found other player at x:",x_pos," y: ",y_pos);
                 cell ={x:x_pos,y:y_pos,type:"person"}; 
+                console.log("map.grid: ",map.grid);
+                map.grid[x_pos][y_pos]=cell;
                 map["person"].push(cell);
             }
             tiles.push(cell);
-            map.grid[x_pos][y_pos]=cell;
         }
         for (x = 0; x < gridSize.x; x++) {
             map.grid[x] = [];
@@ -137,7 +166,7 @@ $(function() {
     function updatePlayerInfo(playerData){
         var health = document.getElementById("health");
         health.value=playerData["health"];
-        
+
         var score = document.getElementById("score");
         score.innerHTML = playerData["score"];
     }
@@ -155,13 +184,15 @@ $(function() {
             .attr("height", function (d) { return squareLength; })
             .attr("class", cssClass);
     }
-    var squareLength = 40;
-    var gridSize = { x:20, y:20 };
+    var squareLength = 20;
+    var gridSize = { x:SCREEN_LEN, y:SCREEN_LEN };
 
     var svgSize = getSvgSize(gridSize, squareLength);
-        getMap(gridSize, drawMap,updatePlayerInfo);
-        window.setInterval(function(){
-            getMap(gridSize,drawMap,updatePlayerInfo);
-        },100);
+    getMap();
+    //       getMap(gridSize, drawMap,updatePlayerInfo);
+    window.setInterval(function(){
+        getMap();
+        //            getMap(gridSize,drawMap,updatePlayerInfo);
+    },100);
 }
 );
