@@ -20,7 +20,7 @@ def generate_tiles():
                 tiles.append({'x':x,'y':y})
     return tiles 
 
-
+# establish connection with game db
 client=MongoClient()
 world=client.game.world
 users=client.game.users
@@ -28,8 +28,9 @@ users=client.game.users
 def create_user():
     print "creating user"
     user = {'X':1,'Y':1,'x': randint(10,15), 'y':randint(10,15)}
+    user["health"]=100
+    user["score"]=0
     users.insert(user)
-    users.update({"_id": user["_id"]}, {"$set" : user})
     return user
 
 def create_world():
@@ -45,6 +46,7 @@ def create_world():
                 continue
             world.insert(screen)
 
+#this takes a user document and returns the curren screen document they are in
 def get_screen(user):
     X=user['X']
     Y=user['Y']
@@ -54,42 +56,42 @@ def get_screen(user):
         return None
     return cur[0]
 
+#this is the route that is repeatedly called to refresh the screen
 @bottle.get("/load_screen")
 def load_screen():
     screen1 = {}
     if (world.count()==0):
         create_world()
     user_id=None
-    if request.get_cookie("user_id"):
-        user_str_id= request.get_cookie("user_id")
-
-        #convert from string to ObjectId type.
-#        user = users.find_one({"_id":ObjectId(user_str_id)})
-        user_id=ObjectId(user_str_id)#user["_id"]
-    else:
-        user = create_user()
-        bottle.response.set_cookie("user_id", str(user["_id"]))
-        screen = get_screen(user)
-        users_in_screen=screen['users']
-        users_in_screen.append(user)
-        screen['users']=users_in_screen
-        world.update({"_id":screen['_id']},{"$set":screen})
-        user_id = user["_id"] 
-    
-
-    current_user=find_user(user_id)
+    current_user=None
+    user_id_str= request.get_cookie("user_id")
+    if user_id_str:
+        user_id = ObjectId(user_id_str)
+        current_user=find_user(user_id)
+        if current_user is None:
+            print "user with id "+str(user_id)+" not found, creating new"
+            "user"
+    #if either the cookie does not exist or the user is not found
     if current_user is None:
-        print "user with id "+str(user_id)+" not found"
-        return
+        current_user = create_user()
+        user_id=current_user["_id"]
+        bottle.response.set_cookie("user_id", str(user_id))
+        screen = get_screen(current_user)
+        screen['users'].append(current_user)
+        world.update({"_id":screen['_id']},{"$set":screen})
+    if current_user is None:
+        print "error in getScreen, user is None"
+
     screen = get_screen(current_user)
     screen.pop('_id', None)
     for user in screen["users"]:
+        user.pop('_id');
         user.pop('Y')
         user.pop('X')
-        user.pop('_id',None)
     screen.pop('X')
     screen.pop('Y')
-    return {'screen':screen}
+    current_user['_id']=str(current_user['_id'])
+    return {'screen':screen,'player':current_user}
 
 AXES = {"up":'y',"down":'y',"left":'x',"right":'x'}
 DIRECTIONS = {"up":-1,"down":1,"left":-1,"right":1}
@@ -189,12 +191,12 @@ def find_user(user_id):
 def postResource():
     user_id=None
     if request.get_cookie("user_id"):
-        user_id= request.get_cookie("user_id")
-    user = users.find_one({"_id":ObjectId(user_id)})
+        user_id_str= request.get_cookie("user_id")
+        user_id= ObjectId(user_id_str)
+    user = users.find_one({"_id":user_id})
     if (not user):
         sys.stderr.write("User Not Found!")
         return
-    uid =user["_id"]
     X = user["X"]
     Y = user["Y"]
     x = user["x"]
@@ -207,7 +209,9 @@ def postResource():
 
     if can_move(user,move):
         update_position(user,move)
+        users.update({"_id":user_id},{"$inc":{'score':+1}})
     else:
+        users.update({"_id":user_id},{"$inc":{'health':-1}})
         print "invalid move"
 
 @bottle.get('/<filename>')

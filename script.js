@@ -26,7 +26,7 @@ $(function() {
                     dataType: "json",
                 });
 
-                getMap(gridSize,drawMap);
+                getMap(gridSize,drawMap,updatePlayerInfo);
         }
     function drawMap(map){
         $("svg").remove();
@@ -61,14 +61,17 @@ $(function() {
     }*/
 
     // Queries to server for the user's view and passes the result to the callback
-    function getMap(gridSize, cb) {
+    function getMap(gridSize, map_cb,player_info_cb) {
         var screenJSON;
         //Use JQuery to make an AJAX request for the JSON screen object
         $.getJSON('load_screen', function(data) { 
             screen_data=data["screen"];
 
             var map = completeMap(gridSize,screen_data["tiles"],screen_data["users"]);
-            cb(map);
+            map_cb(map);
+
+            player_data = data["player"];
+            player_info_cb(player_data);
         })
     }
 
@@ -131,6 +134,14 @@ $(function() {
         return { x:xScale, y:yScale };
     }
 
+    function updatePlayerInfo(playerData){
+        var health = document.getElementById("health");
+        health.value=playerData["health"];
+        
+        var score = document.getElementById("score");
+        score.innerHTML = playerData["score"];
+    }
+
     function drawCells(svgContainer, scales, data, cssClass) {
         var gridGroup = svgContainer.append("g");
         var cells = gridGroup.selectAll("rect")
@@ -148,9 +159,9 @@ $(function() {
     var gridSize = { x:20, y:20 };
 
     var svgSize = getSvgSize(gridSize, squareLength);
-        getMap(gridSize, drawMap);
+        getMap(gridSize, drawMap,updatePlayerInfo);
         window.setInterval(function(){
-            getMap(gridSize,drawMap);
+            getMap(gridSize,drawMap,updatePlayerInfo);
         },100);
 }
 );
