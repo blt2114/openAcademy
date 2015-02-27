@@ -22,6 +22,10 @@ $(function() {
         else if (keyEvent.keyCode == 40) {
             dir = "down"
         }
+        // To drop a tile
+        else if (keyEvent.keyCode == 65) {
+            dir = "place_tile"
+        }
         $.ajax({
             type: "POST",
             url: "/move",

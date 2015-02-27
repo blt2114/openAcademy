@@ -99,6 +99,7 @@ def load_screen():
     users.update({"_id":user_id},{"$unset":{'sound':""}})
     return {'screen':screen,'player':current_user,"sound":sound}
 
+BUILD = {"place_tile":0}#here to maintain similar structure to AXES
 AXES = {"up":'y',"down":'y',"left":'x',"right":'x'}
 DIRECTIONS = {"up":-1,"down":1,"left":-1,"right":1}
 MOVE_DIR = {"up":(0,-1),"down":(0,1),"left":(-1,0),"right":(1,0)}
@@ -222,23 +223,20 @@ def postResource():
     if (not user):
         sys.stderr.write("User Not Found!")
         return
-    X = user["X"]
-    Y = user["Y"]
-    x = user["x"]
-    y = user["y"]
 
     screen = get_screen(user)
     move = bottle.request.json['move']
-    if not move in AXES:
-        return
-
-    if can_move(user,move):
-        update_position(user,move)
+    if move in BUILD:
+        output = world.update({"X":user["X"],"Y":user["Y"]},{"$push":{"tiles":{'x':user['x'],'y':user['y'],'type':'rock'}}})
+    elif move in AXES:
+        if can_move(user,move):
+            update_position(user,move)
+        else:
+            users.update({"_id":user_id},{"$inc":{'health':-1}})
+            users.update({"_id":user_id},{"$set":{'sound':"damage"}})
+            print "invalid move"
     else:
-        users.update({"_id":user_id},{"$inc":{'health':-1}})
-        users.update({"_id":user_id},{"$set":{'sound':"damage"}})
-
-        print "invalid move"
+        return
 
 @bottle.get('/<filename>')
 def serve_index(filename):
