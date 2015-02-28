@@ -26,6 +26,12 @@ body {
     stroke: #2973F2;
 }
 
+.player {
+    fill:black;
+    stroke-width: 3px;
+    stroke:#2973F2     
+}
+
 .potion {
     fill: #B3210B;
     stroke-width: 1px;

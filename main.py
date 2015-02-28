@@ -240,7 +240,7 @@ def postResource():
 
 @bottle.get('/<filename>')
 def serve_index(filename):
-    return bottle.static_file(filename, root='/Users/briantrippe/Documents/Developer/OpenAcademy/MongoDB/')
+    return bottle.static_file(filename, root='/home/riaz/openAcademy/')
 
 bottle.debug(True)
 bottle.run(host='localhost', port=8080)

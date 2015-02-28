@@ -22,7 +22,7 @@ $(function() {
         else if (keyEvent.keyCode == 40) {
             dir = "down"
         }
-        // To drop a tile
+        // To drop a tile, press a
         else if (keyEvent.keyCode == 65) {
             dir = "place_tile"
         }
@@ -95,10 +95,14 @@ $(function() {
         $.getJSON('load_screen', function(data) { 
             screen_data=data["screen"];
 
-            var map = completeMap(gridSize,screen_data["tiles"],screen_data["users"]);
+            player_data = data["player"];
+	    player_x = player_data["x"];
+	    player_y = player_data["y"];
+            var map = completeMap(gridSize,screen_data["tiles"],screen_data["users"],player_x,player_y);
             drawMap(map);
 
-            player_data = data["player"];
+	    //print player_data
+	    //console.log("SUP ", player_data['x'])
             updatePlayerInfo(player_data);
 
             sound = data["sound"];
@@ -107,7 +111,8 @@ $(function() {
     }
 
     // Construct the map obj using the terrain and users arrays
-    function completeMap(gridSize,terrain,users){
+    function completeMap(gridSize,terrain,users, player_x, player_y){
+	//, current_player){
         var map = { grid:[], grass:[], rock:[], potion:[],person:[],player:[] };
         for (var x =0 ; x<gridSize.x;x++){
             map.grid[x]=[];
@@ -127,8 +132,10 @@ $(function() {
         for (var i =0;i<users.length;i++){
             var x_pos=users[i].x;
             var y_pos=users[i].y;
-            if (users[i].hasOwnProperty('current_player')){
-                cell ={x:x_pos,y:y_pos,type:"player"}; 
+	    console.log("HEY ", x_pos, y_pos, player_x, player_y);
+	//if (users[i] == currentPlayer){
+        if ((x_pos == player_x) && (y_pos == player_y)){
+		cell ={x:x_pos,y:y_pos,type:"player"}; 
                 console.log("map.grid: ",map.grid);
                 map.grid[x_pos][y_pos]=cell;
                 map["player"].push(cell);
@@ -197,6 +204,6 @@ $(function() {
     window.setInterval(function(){
         getMap();
         //            getMap(gridSize,drawMap,updatePlayerInfo);
-    },100);
+    },500);
 }
 );
