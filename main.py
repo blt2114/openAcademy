@@ -32,6 +32,7 @@ def create_user():
     user = {'X':1,'Y':1,'x': randint(10,15), 'y':randint(10,15)}
     user["health"]=100
     user["score"]=0
+    user['carrying'] = 0
     users.insert(user)
     return user
 
@@ -99,10 +100,10 @@ def load_screen():
     users.update({"_id":user_id},{"$unset":{'sound':""}})
     return {'screen':screen,'player':current_user,"sound":sound}
 
-BUILD = {"place_tile":0}#here to maintain similar structure to AXES
+BUILD = {"place_tile":0, "pick_up_left":1}#here to maintain similar structure to AXES
 AXES = {"up":'y',"down":'y',"left":'x',"right":'x'}
 DIRECTIONS = {"up":-1,"down":1,"left":-1,"right":1}
-MOVE_DIR = {"up":(0,-1),"down":(0,1),"left":(-1,0),"right":(1,0)}
+MOVE_DIR = {"up":(0,-1),"down":(0,1),"left":(-1,0),"right":(1,0),"pick_up_left":(-1,0)}
 # updates the users position as well as score and sound if as necessary
 def update_position(user,move):
     screen= get_screen(user)
@@ -139,6 +140,11 @@ def update_position(user,move):
         users.update({"_id":user['_id']},{"$set":{'sound':"score"}})
     #world.update({"users":{"$elemMatch":{"_id":uid}}},{"$inc":{'users.$.'+AXES[move]:DIRECTIONS[move]}})
 
+def update_for_build(user, move):
+    screen = get_screen(user)
+    new_pos = new_coord(user,move)
+    world.update({"X":new_pos['X'],"Y":new_pos['Y']},{"$pop":{"tiles":{'x':new_pos['x'],'y':new_pos['y'],'type': 'rock'}}})
+
 #calculates the a new desired position of a user based on direction.
 # this includes both local and relative coordinates
 def new_coord(user,move):
@@ -146,19 +152,20 @@ def new_coord(user,move):
     Y=user['Y']
     x=user['x']
     y=user['y']
-    dx = MOVE_DIR[move][0]
-    dy = MOVE_DIR[move][1]
+    if move in MOVE_DIR:
+        dx = MOVE_DIR[move][0]
+        dy = MOVE_DIR[move][1]
     
-    if (x+dx)<0:
-        X = X-1
-    elif  (x+dx)>=SCREEN_LEN:
-        X = X+1
-    x = (x+dx)%SCREEN_LEN
-    if (y+dy)<0:
-        Y = Y-1
-    elif (y+dy)>=SCREEN_LEN:
-        Y = Y+1
-    y = (y+dy)%SCREEN_LEN
+        if (x+dx)<0:
+            X = X-1
+        elif  (x+dx)>=SCREEN_LEN:
+            X = X+1
+        x = (x+dx)%SCREEN_LEN
+        if (y+dy)<0:
+            Y = Y-1
+        elif (y+dy)>=SCREEN_LEN:
+            Y = Y+1
+        y = (y+dy)%SCREEN_LEN
     return {"X":X,"Y":Y,"x":x,"y":y}
 
 # checks the if the position provided has a potion on it.
@@ -203,10 +210,22 @@ def can_move(user,move):
     
     if user_at(new_pos):
         return False
-    if terrain_at(new_pos):
-        return False
+    if move in DIRECTIONS:
+        if terrain_at(new_pos):
+            return False
+    elif move in BUILD:
+        if not (terrain_at(new_pos)):
+            return False
+        #if trying to drop a tile without having picked one up
+        if move == 'place_tile' and not (carrying_tile(user)):
+            return False
+        # if trying to pick up a tile and user already has a tile
+        elif carryingtile(user) or not(terrain_at(new_pos)):
+                return False
     return True
 
+def carrying_tile(user):
+    return user["carrying"] == 1
 
 # finds specific user by its _id field
 def find_user(user_id):
@@ -227,7 +246,14 @@ def postResource():
     screen = get_screen(user)
     move = bottle.request.json['move']
     if move in BUILD:
-        output = world.update({"X":user["X"],"Y":user["Y"]},{"$push":{"tiles":{'x':user['x'],'y':user['y'],'type':'rock'}}})
+        if can_move(user, move):
+            if move == "place_tile":
+                output = world.update({"X":user["X"],"Y":user["Y"]},{"$push":{"tiles":{'x':user['x'],'y':user['y'],'type':'rock'}}})
+                users.update({"_id": user_id}, {'$set': {'carrying': 0}})
+            else:
+                #move is picking up a tile
+                update_for_build(user,move)
+                users.update({"_id": user_id}, {'$set': {'carrying':1}})
     elif move in AXES:
         if can_move(user,move):
             update_position(user,move)

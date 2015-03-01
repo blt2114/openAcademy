@@ -20,12 +20,16 @@ $(function() {
             dir = "right";
         }
         else if (keyEvent.keyCode == 40) {
-            dir = "down"
+            dir = "down";
         }
         // To drop a tile, press a
-        else if (keyEvent.keyCode == 65) {
-            dir = "place_tile"
+        else if (keyEvent.keyCode == 32) {
+            dir = "place_tile";
         }
+	else if (keyEvent.keyCode == 65){
+	    dir = "pick_up_left";
+	}
+
         $.ajax({
             type: "POST",
             url: "/move",
