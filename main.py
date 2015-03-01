@@ -100,10 +100,10 @@ def load_screen():
     users.update({"_id":user_id},{"$unset":{'sound':""}})
     return {'screen':screen,'player':current_user,"sound":sound}
 
-BUILD = {"place_tile":0, "pick_up_left":1}#here to maintain similar structure to AXES
+BUILD = {"place_tile":0, "pick_up_left":1, "pick_up_down": 2, "pick_up_right": 3, "pick_up_up": 4}#here to maintain similar structure to AXES
 AXES = {"up":'y',"down":'y',"left":'x',"right":'x'}
 DIRECTIONS = {"up":-1,"down":1,"left":-1,"right":1}
-MOVE_DIR = {"up":(0,-1),"down":(0,1),"left":(-1,0),"right":(1,0),"pick_up_left":(-1,0)}
+MOVE_DIR = {"up":(0,-1),"down":(0,1),"left":(-1,0),"right":(1,0),"pick_up_left":(-1,0),"pick_up_down":(0,1),"pick_up_right":(1,0),"pick_up_up":(0,-1)}
 # updates the users position as well as score and sound if as necessary
 def update_position(user,move):
     screen= get_screen(user)
@@ -143,7 +143,7 @@ def update_position(user,move):
 def update_for_build(user, move):
     screen = get_screen(user)
     new_pos = new_coord(user,move)
-    world.update({"X":new_pos['X'],"Y":new_pos['Y']},{"$pop":{"tiles":{'x':new_pos['x'],'y':new_pos['y'],'type': 'rock'}}})
+    world.update({"X":new_pos['X'],"Y":new_pos['Y']},{"$pull":{"tiles":{'x':new_pos['x'],'y':new_pos['y'],'type': 'rock'}}})
 
 #calculates the a new desired position of a user based on direction.
 # this includes both local and relative coordinates
@@ -207,20 +207,19 @@ def user_at(pos):
 #different terrain types '''
 def can_move(user,move):
     new_pos = new_coord(user,move)
-    
-    if user_at(new_pos):
+    if user_at(new_pos) and not(move == 'place_tile'):
         return False
     if move in DIRECTIONS:
         if terrain_at(new_pos):
             return False
     elif move in BUILD:
-        if not (terrain_at(new_pos)):
-            return False
         #if trying to drop a tile without having picked one up
-        if move == 'place_tile' and not (carrying_tile(user)):
-            return False
+        if move == 'place_tile':
+            if not (carrying_tile(user)):
+                return False
         # if trying to pick up a tile and user already has a tile
-        elif carryingtile(user) or not(terrain_at(new_pos)):
+        elif move != 'place_tile':
+            if carrying_tile(user) or not(terrain_at(new_pos)):
                 return False
     return True
 

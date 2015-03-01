@@ -29,6 +29,15 @@ $(function() {
 	else if (keyEvent.keyCode == 65){
 	    dir = "pick_up_left";
 	}
+	else if (keyEvent.keyCode == 20){
+	    dir = "pick_up_down";
+	}
+	else if (keyEvent.keyCode == 68){
+	    dir = "pick_up_right";
+	}
+	else if (keyEvent.keyCode == 87){
+	    dir = "pick_up_up"
+	}
 
         $.ajax({
             type: "POST",
