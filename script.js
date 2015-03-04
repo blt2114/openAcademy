@@ -29,7 +29,7 @@ $(function() {
 	else if (keyEvent.keyCode == 65){
 	    dir = "pick_up_left";
 	}
-	else if (keyEvent.keyCode == 20){
+	else if (keyEvent.keyCode == 83){
 	    dir = "pick_up_down";
 	}
 	else if (keyEvent.keyCode == 68){
