@@ -238,13 +238,14 @@ def can_place_tile(user):
     return False
 
 def can_pickup_tile(user,dir):
-    pickup_pos = get_tile_coord(user,act,1)
+    print dir
+    pickup_pos = get_tile_coord(user,dir,1)
     if terrain_at(pickup_pos) and not(carrying_tile(user)):
         return True
     return False
 
 def carrying_tile(user):
-    return user["carrying"] == 1
+    return user["carrying"] != 0
 
 # finds specific user by its _id field
 def find_user(user_id):
@@ -289,8 +290,9 @@ def act():
         elif 'pickup' in act :
             #move is picking up a tile
             dir = act.split('_')[1]
-            update_after_pickup(user,dir)
-            users.update({"_id": user_id}, {'$set': {'carrying':1}})
+            if can_pickup_tile(user,dir):
+                update_after_pickup(user,dir)
+                users.update({"_id": user_id}, {'$set': {'carrying':1}})
     else:
         return
 
