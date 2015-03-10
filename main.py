@@ -8,7 +8,7 @@ from bson.objectid import ObjectId
 
 SCREEN_LEN = 25 #number of spaces per row and column
 WORLD_LEN = 10 #number of screens per row and column of the world
-
+TOOLS = {1: "pickup", 2: "bow"}
 
 def generate_tiles():
     #generate tiles in random positions in SCREEN_LENXSCREEN_LEN  grid.  1/6 of positions
@@ -33,6 +33,10 @@ def create_user():
     user["health"]=100
     user["score"]=0
     user['carrying'] = 0
+    user["tools"] = [1.2]
+    user["current_tool"] = 1
+    user["arrows"] = 5
+    user["shield"] = True
     users.insert(user)
     return user
 
@@ -100,8 +104,10 @@ def load_screen():
     users.update({"_id":user_id},{"$unset":{'sound':""}})
     return {'screen':screen,'player':current_user,"sound":sound}
 
-BUILD = {"place_tile":0, "pickup_left":1, "pickup_down": 2, "pickup_right": 3, "pickup_up": 4}#here to maintain similar structure to AXES
-AXES = {"up":'y',"down":'y',"left":'x',"right":'x'}
+#BUILD = {"place_tile":0, "pickup_left":1, "pickup_down": 2, "pickup_right": 3, "pickup_up": 4}#here to maintain similar structure to AXES
+#AXES = {"up":'y',"down":'y',"left":'x',"right":'x'}
+PICKUP = ["pickup_left","pickup_right","pickup_up","pickup_down", "pickup_special"]
+#AXES = ["up", "down", "left", "right"]
 DIRECTIONS = {"up":-1,"down":1,"left":-1,"right":1}
 MOVE_DIR = {"up":(0,-1),"down":(0,1),"left":(-1,0),"right":(1,0)}
 # updates the users position as well as score and sound if as necessary
@@ -183,7 +189,7 @@ def user_at(pos):
     #this currently fails because users contain other additional fields
     user = world.find({"X":pos["X"],"Y":pos["Y"],"users":{"$elemMatch":{"x":pos['x'],"y":pos['y']}}})
     if user.count():
-        return True
+        return True, user[0]
     return False
 
 #checks if the tile with given position is empty of players,terrain, and potion
@@ -237,12 +243,14 @@ def can_place_tile(user):
         return not (terrain_at(user_pos))
     return False
 
-def can_pickup_tile(user,dir):
-    print dir
+def can_pickup(user,dir):
+    if dir == "special":
+        return can_place_tile(user)
     pickup_pos = get_tile_coord(user,dir,1)
     if terrain_at(pickup_pos) and not(carrying_tile(user)):
         return True
     return False
+
 
 def carrying_tile(user):
     return user["carrying"] != 0
@@ -264,37 +272,85 @@ def get_user_info():
     screen = get_screen(user)
     return user, user_id, screen
 
+
+
 @route("/move", method="POST")
 def move():
     user,user_id, screen = get_user_info()
-    move = bottle.request.json["action"]
-    if move in AXES:
-        if can_move(user,move):
-            update_position(user,move)
-        else:
-            users.update({"_id":user_id},{"$inc":{'health':-1}})
-            users.update({"_id":user_id},{"$set":{'sound':"damage"}})
-            print "invalid move"
+    user["shield"] = False
+    dir = bottle.request.json["action"]
+    #if move in AXES:
+    if can_move(user,dir):
+        update_position(user,dir)
     else:
-        return
+        users.update({"_id":user_id},{"$inc":{'health':-1}})
+        users.update({"_id":user_id},{"$set":{'sound':"damage"}})
+        print "invalid move"
+    #else:
+        #return
+
+def pickup(user,user_id,dir):
+    if dir == "special":
+        world.update({"X":user["X"],"Y":user["Y"]},{"$push":{"tiles":{'x':user['x'],'y':user['y'],'type':'rock'}}})
+        users.update({"_id": user_id}, {'$set': {'carrying': 0}})
+    else:
+        update_after_pickup(user,dir)
+        users.update({"_id": user_id}, {'$set': {'carrying':1}})
+
+def has_arrows(user):
+    return user["arrows"] != 0 
+
+def can_shoot(user, dir):
+    if dir == "special":
+        return not (carrying_tile(user))
+    else:
+        return has_arrows(user)
+#shoots an arrow from player in given direction until it hits terrain (no affect) or player (decrements health)
+#fired arrows stop at edge of current screen
+def shoot(user, user_id, screen, dir):
+    if dir == "special":
+        user["shield"] = True
+    users.update({"_id": user_id}, {"$inc" : {"arrows":-1}})
+    for magnitude in range(1,20):
+        target = get_tile_coord(user,dir,magnitude)
+        if (target["X"] != screen["X"]) or (target["Y"] != screen["Y"]):
+            return
+        #if user has just dropped a tile they will not be hit by shot
+        if terrain_at(target):
+            return
+        if user_at(target):
+            is_enemy, enemy = user_at(target)
+            if enemy["shield"]:
+                user["health"] -= 1
+            else:
+                enemy["health"] -= 1
+
 
 @route("/act", method = "POST")
 def act():
     user, user_id, screen = get_user_info()
-    act = bottle.request.json["action"]
-    if act in BUILD:
-        if act == 'place_tile': 
-            if can_place_tile(user):
-                output = world.update({"X":user["X"],"Y":user["Y"]},{"$push":{"tiles":{'x':user['x'],'y':user['y'],'type':'rock'}}})
-                users.update({"_id": user_id}, {'$set': {'carrying': 0}})
-        elif 'pickup' in act :
-            #move is picking up a tile
-            dir = act.split('_')[1]
-            if can_pickup_tile(user,dir):
-                update_after_pickup(user,dir)
-                users.update({"_id": user_id}, {'$set': {'carrying':1}})
+    user["shield"] = False
+    dir = bottle.request.json["action"]
+    tool = TOOLS[user["current_tool"]]
+    print tool
+    if tool== "pickup":
+        if can_pickup(user, dir):
+            pickup(user,user_id, dir)
+        else:
+            print "invalid_pickup"
+    elif tool == "bow":
+        if can_shoot(user, dir):
+            shoot(user, user_id,screen, dir)
+        else:
+            print "invalid_shoot"
+
     else:
         return
+@route("/switch", method = "POST")
+def switch():
+    user, user_id, screen = get_user_info()
+    tool = int(bottle.request.json["action"])
+    users.update({"_id": user_id}, {'$set': {"current_tool": tool}})
 
 @bottle.get('/<filename>')
 def serve_index(filename):
