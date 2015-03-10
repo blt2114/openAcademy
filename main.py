@@ -100,10 +100,10 @@ def load_screen():
     users.update({"_id":user_id},{"$unset":{'sound':""}})
     return {'screen':screen,'player':current_user,"sound":sound}
 
-BUILD = {"place_tile":0, "pick_up_left":1, "pick_up_down": 2, "pick_up_right": 3, "pick_up_up": 4}#here to maintain similar structure to AXES
+BUILD = {"place_tile":0, "pickup_left":1, "pickup_down": 2, "pickup_right": 3, "pickup_up": 4}#here to maintain similar structure to AXES
 AXES = {"up":'y',"down":'y',"left":'x',"right":'x'}
 DIRECTIONS = {"up":-1,"down":1,"left":-1,"right":1}
-MOVE_DIR = {"up":(0,-1),"down":(0,1),"left":(-1,0),"right":(1,0),"pick_up_left":(-1,0),"pick_up_down":(0,1),"pick_up_right":(1,0),"pick_up_up":(0,-1)}
+MOVE_DIR = {"up":(0,-1),"down":(0,1),"left":(-1,0),"right":(1,0),"pickup_left":(-1,0),"pickup_down":(0,1),"pickup_right":(1,0),"pickup_up":(0,-1)}
 # updates the users position as well as score and sound if as necessary
 def update_position(user,move):
     screen= get_screen(user)
@@ -140,33 +140,16 @@ def update_position(user,move):
         users.update({"_id":user['_id']},{"$set":{'sound':"score"}})
     #world.update({"users":{"$elemMatch":{"_id":uid}}},{"$inc":{'users.$.'+AXES[move]:DIRECTIONS[move]}})
 
-def update_for_build(user, move):
+def update_after_pickup(user, move):
     screen = get_screen(user)
     new_pos = new_coord(user,move)
     world.update({"X":new_pos['X'],"Y":new_pos['Y']},{"$pull":{"tiles":{'x':new_pos['x'],'y':new_pos['y'],'type': 'rock'}}})
 
 #calculates the a new desired position of a user based on direction.
 # this includes both local and relative coordinates
-def new_coord(user,move):
-    X=user['X']
-    Y=user['Y']
-    x=user['x']
-    y=user['y']
-    if move in MOVE_DIR:
-        dx = MOVE_DIR[move][0]
-        dy = MOVE_DIR[move][1]
+def new_coord(user,move): 
+    return get_tile_coord(user,move, 1)
     
-        if (x+dx)<0:
-            X = X-1
-        elif  (x+dx)>=SCREEN_LEN:
-            X = X+1
-        x = (x+dx)%SCREEN_LEN
-        if (y+dy)<0:
-            Y = Y-1
-        elif (y+dy)>=SCREEN_LEN:
-            Y = Y+1
-        y = (y+dy)%SCREEN_LEN
-    return {"X":X,"Y":Y,"x":x,"y":y}
 
 # checks the if the position provided has a potion on it.
 def potion_at(pos):
@@ -203,24 +186,31 @@ def user_at(pos):
         return True
     return False
 
-#checks if the tile with the given magnitude in the given direction is free for the user
-def tile_is_free(user,dir,magnitude):
-    tile_pos = get_tile_coord(user,dir,magnitude)
-    if user_at(tile_pos):
+#checks if the tile with given position is empty of players,terrain, and potion
+def tile_is_empty(tile_pos):
+    #tile_pos = get_tile_coord(user,dir,magnitude)
+    if user_at(tile_pos) or terrain_at(tile_pos) or potion_at(tile_pos):
         return False
-    if terrain_at(tile_pos):
+    return True
+
+#checks if the tile with the tile with the given position is empyu of players and terrain
+def tile_is_free(tile_pos):
+    if user_at(tile_pos) or terrain_at(tile_pos):
         return False
     return True
 
 #retrieves the coordinates of the tile with the given magnitude and direction from the user
 def get_tile_coord(user,dir,magnitude):
+    
     X = user['X']
     Y = user['Y']
     x = user['x']
     y = user['y']
-    
-    dx = MOVE_DIR[dir][0]*magnitude
-    dy = MOVE_DIR[dir][1]*magnitude
+    dx = 0
+    dy = 0
+    if dir in MOVE_DIR:
+        dx = MOVE_DIR[dir][0]*magnitude
+        dy = MOVE_DIR[dir][1]*magnitude
     
     if (x+dx) < 0:
         X -= 1
@@ -238,21 +228,20 @@ def get_tile_coord(user,dir,magnitude):
 #different terrain types '''
 def can_move(user,move):
     new_pos = new_coord(user,move)
-    if user_at(new_pos) and not(move == 'place_tile'):
-        return False
-    if move in DIRECTIONS:
-        if terrain_at(new_pos):
-            return False
-    elif move in BUILD:
-        #if trying to drop a tile without having picked one up
-        if move == 'place_tile':
-            if not (carrying_tile(user)):
-                return False
-        # if trying to pick up a tile and user already has a tile
-        elif move != 'place_tile':
-            if carrying_tile(user) or not(terrain_at(new_pos)):
-                return False
-    return True
+    return tile_is_free(new_pos)
+
+#return whether or not a tile can be placed at location of user
+def can_place_tile(user):
+    user_pos = get_tile_coord(user,"nowhere", 0)
+    if carrying_tile(user):
+        return not (terrain_at(user_pos))
+    return False
+
+def can_pickup_tile(user,dir):
+    pickup_pos = get_tile_coord(user,act,1)
+    if terrain_at(pickup_pos) and not(carrying_tile(user)):
+        return True
+    return False
 
 def carrying_tile(user):
     return user["carrying"] == 1
@@ -268,7 +257,7 @@ def get_user_info():
         user_id = ObjectId(user_id_str)
     user = users.find_one({"_id": user_id})
     if (not user):
-        sys.stderr.write("User not FOund!")
+        sys.stderr.write("User not Found!")
         return
     
     screen = get_screen(user)
@@ -293,14 +282,15 @@ def act():
     user, user_id, screen = get_user_info()
     act = bottle.request.json["action"]
     if act in BUILD:
-        if can_move(user, act):
-            if act == "place_tile":
+        if act == 'place_tile': 
+            if can_place_tile(user):
                 output = world.update({"X":user["X"],"Y":user["Y"]},{"$push":{"tiles":{'x':user['x'],'y':user['y'],'type':'rock'}}})
                 users.update({"_id": user_id}, {'$set': {'carrying': 0}})
-            else:
-                #move is picking up a tile
-                update_for_build(user,act)
-                users.update({"_id": user_id}, {'$set': {'carrying':1}})
+        elif 'pickup' in act :
+            #move is picking up a tile
+            dir = act.split('_')[1]
+            update_after_pickup(user,dir)
+            users.update({"_id": user_id}, {'$set': {'carrying':1}})
     else:
         return
 
