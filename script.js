@@ -9,43 +9,55 @@ $(function() {
         var squareLength = 20;
 
         var svgSize = getSvgSize(gridSize, squareLength);
-        var dir ="";
+        var action  = "";
+	movements = ["left", "up", "right", "down"]
         if (keyEvent.keyCode == 37) {
-            dir = "left";
+            action = "left";
         }
         else if (keyEvent.keyCode == 38) {
-            dir = "up";
+            action = "up";
         }
         else if (keyEvent.keyCode == 39) {
-            dir = "right";
+	    action = "right";
         }
         else if (keyEvent.keyCode == 40) {
-            dir = "down";
+            action = "down";
         }
         // To drop a tile, press a
         else if (keyEvent.keyCode == 32) {
-            dir = "place_tile";
+            action = "place_tile";
         }
 	else if (keyEvent.keyCode == 65){
-	    dir = "pick_up_left";
+	    action = "pick_up_left";
 	}
 	else if (keyEvent.keyCode == 83){
-	    dir = "pick_up_down";
+	    action = "pick_up_down";
 	}
 	else if (keyEvent.keyCode == 68){
-	    dir = "pick_up_right";
+	    action = "pick_up_right";
 	}
 	else if (keyEvent.keyCode == 87){
-	    dir = "pick_up_up"
+	    action = "pick_up_up"
+	}
+	if action in movements{
+	    $.ajax({
+		type: "POST",
+		url: "/move",
+		data: JSON.stringify({"move":action}),
+		contentType: "application/json; charset=utf-8",
+		dataType: "json",
+	    });
 	}
 
-        $.ajax({
-            type: "POST",
-            url: "/move",
-            data: JSON.stringify({"move":dir}),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-        });
+	else{
+	    $.ajax({
+		type: "POST",
+		url: "/build",
+		data: JSON.stringify({"build" : action}),
+		contentType: "application/json; charset=utf-8",
+		dataType: "json",
+	    })
+	}
 
         getMap();
         //getMap(gridSize,drawMap,updatePlayerInfo);
