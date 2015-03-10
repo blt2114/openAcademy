@@ -203,6 +203,37 @@ def user_at(pos):
         return True
     return False
 
+#checks if the tile with the given magnitude in the given direction is free for the user
+def tile_is_free(user,dir,magnitude):
+    tile_pos = get_tile_coord(user,dir,magnitude)
+    if user_at(tile_pos):
+        return False
+    if terrain_at(tile_pos):
+        return False
+    return True
+
+#retrieves the coordinates of the tile with the given magnitude and direction from the user
+def get_tile_coord(user,dir,magnitude):
+    X = user['X']
+    Y = user['Y']
+    x = user['x']
+    y = user['y']
+    
+    dx = MOVE_DIR[dir][0]*magnitude
+    dy = MOVE_DIR[dir][1]*magnitude
+    
+    if (x+dx) < 0:
+        X -= 1
+    elif (x+dx) >= SCREEN_LEN:
+        X += 1
+    x = (x+dx) % SCREEN_LEN
+    if (y+dy) < 0:
+        Y -= 1
+    elif (y+dy) >= SCREEN_LEN:
+        Y += 1
+    y = (y+dy)%SCREEN_LEN
+    return {"X":X,"Y":Y,"x":x,"y":y}
+
 #TODO: potentially add functionality allow different users to move on
 #different terrain types '''
 def can_move(user,move):
@@ -245,7 +276,6 @@ def get_user_info():
 
 @route("/move", method="POST")
 def move():
-    print "heyo"
     user,user_id, screen = get_user_info()
     move = bottle.request.json["action"]
     if move in AXES:
@@ -263,7 +293,6 @@ def act():
     user, user_id, screen = get_user_info()
     act = bottle.request.json["action"]
     if act in BUILD:
-        print "sup"
         if can_move(user, act):
             if act == "place_tile":
                 output = world.update({"X":user["X"],"Y":user["Y"]},{"$push":{"tiles":{'x':user['x'],'y':user['y'],'type':'rock'}}})
