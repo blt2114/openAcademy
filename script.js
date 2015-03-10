@@ -7,10 +7,8 @@ $(function() {
     // Draws the terrain and people  onto the map
     window.onkeydown = function move(keyEvent) {
         var squareLength = 20;
-
         var svgSize = getSvgSize(gridSize, squareLength);
         var action  = "";
-	movements = ["left", "up", "right", "down"]
         if (keyEvent.keyCode == 37) {
             action = "left";
         }
@@ -24,7 +22,8 @@ $(function() {
             action = "down";
         }
         // To drop a tile, press a
-        else if (keyEvent.keyCode == 32) {
+        //TODO add sounds for pick up/place actons
+	else if (keyEvent.keyCode == 32) {
             action = "place_tile";
         }
 	else if (keyEvent.keyCode == 65){
@@ -39,11 +38,12 @@ $(function() {
 	else if (keyEvent.keyCode == 87){
 	    action = "pick_up_up"
 	}
-	if action in movements{
+	
+	if (action == "up" || action == "left" || action == "right" || action == "down"){
 	    $.ajax({
 		type: "POST",
 		url: "/move",
-		data: JSON.stringify({"move":action}),
+		data: JSON.stringify({"action":action}),
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 	    });
@@ -52,11 +52,11 @@ $(function() {
 	else{
 	    $.ajax({
 		type: "POST",
-		url: "/build",
-		data: JSON.stringify({"build" : action}),
+		url: "/act",
+		data: JSON.stringify({"action":action}),
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
-	    })
+	    });
 	}
 
         getMap();
@@ -157,7 +157,6 @@ $(function() {
         for (var i =0;i<users.length;i++){
             var x_pos=users[i].x;
             var y_pos=users[i].y;
-	    console.log("HEY ", x_pos, y_pos, player_x, player_y);
 	//if (users[i] == currentPlayer){
         if ((x_pos == player_x) && (y_pos == player_y)){
 		cell ={x:x_pos,y:y_pos,type:"player"}; 
