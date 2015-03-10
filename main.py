@@ -230,36 +230,48 @@ def carrying_tile(user):
 def find_user(user_id):
     user =users.find_one({"_id":user_id})
     return user
+def get_user_info():
+    user_id = None
+    if request.get_cookie("user_id"):
+        user_id_str=request.get_cookie("user_id")
+        user_id = ObjectId(user_id_str)
+    user = users.find_one({"_id": user_id})
+    if (not user):
+        sys.stderr.write("User not FOund!")
+        return
+    
+    screen = get_screen(user)
+    return user, user_id, screen
 
 @route("/move", method="POST")
-def postResource():
-    user_id=None
-    if request.get_cookie("user_id"):
-        user_id_str= request.get_cookie("user_id")
-        user_id= ObjectId(user_id_str)
-    user = users.find_one({"_id":user_id})
-    if (not user):
-        sys.stderr.write("User Not Found!")
-        return
-
-    screen = get_screen(user)
-    move = bottle.request.json['move']
-    if move in BUILD:
-        if can_move(user, move):
-            if move == "place_tile":
-                output = world.update({"X":user["X"],"Y":user["Y"]},{"$push":{"tiles":{'x':user['x'],'y':user['y'],'type':'rock'}}})
-                users.update({"_id": user_id}, {'$set': {'carrying': 0}})
-            else:
-                #move is picking up a tile
-                update_for_build(user,move)
-                users.update({"_id": user_id}, {'$set': {'carrying':1}})
-    elif move in AXES:
+def move():
+    print "heyo"
+    user,user_id, screen = get_user_info()
+    move = bottle.request.json["action"]
+    if move in AXES:
         if can_move(user,move):
             update_position(user,move)
         else:
             users.update({"_id":user_id},{"$inc":{'health':-1}})
             users.update({"_id":user_id},{"$set":{'sound':"damage"}})
             print "invalid move"
+    else:
+        return
+
+@route("/act", method = "POST")
+def act():
+    user, user_id, screen = get_user_info()
+    act = bottle.request.json["action"]
+    if act in BUILD:
+        print "sup"
+        if can_move(user, act):
+            if act == "place_tile":
+                output = world.update({"X":user["X"],"Y":user["Y"]},{"$push":{"tiles":{'x':user['x'],'y':user['y'],'type':'rock'}}})
+                users.update({"_id": user_id}, {'$set': {'carrying': 0}})
+            else:
+                #move is picking up a tile
+                update_for_build(user,act)
+                users.update({"_id": user_id}, {'$set': {'carrying':1}})
     else:
         return
 

@@ -7,45 +7,57 @@ $(function() {
     // Draws the terrain and people  onto the map
     window.onkeydown = function move(keyEvent) {
         var squareLength = 20;
-
         var svgSize = getSvgSize(gridSize, squareLength);
-        var dir ="";
+        var action  = "";
         if (keyEvent.keyCode == 37) {
-            dir = "left";
+            action = "left";
         }
         else if (keyEvent.keyCode == 38) {
-            dir = "up";
+            action = "up";
         }
         else if (keyEvent.keyCode == 39) {
-            dir = "right";
+	    action = "right";
         }
         else if (keyEvent.keyCode == 40) {
-            dir = "down";
+            action = "down";
         }
         // To drop a tile, press a
-        else if (keyEvent.keyCode == 32) {
-            dir = "place_tile";
+        //TODO add sounds for pick up/place actons
+	else if (keyEvent.keyCode == 32) {
+            action = "place_tile";
         }
 	else if (keyEvent.keyCode == 65){
-	    dir = "pick_up_left";
+	    action = "pick_up_left";
 	}
 	else if (keyEvent.keyCode == 83){
-	    dir = "pick_up_down";
+	    action = "pick_up_down";
 	}
 	else if (keyEvent.keyCode == 68){
-	    dir = "pick_up_right";
+	    action = "pick_up_right";
 	}
 	else if (keyEvent.keyCode == 87){
-	    dir = "pick_up_up"
+	    action = "pick_up_up"
+	}
+	
+	if (action == "up" || action == "left" || action == "right" || action == "down"){
+	    $.ajax({
+		type: "POST",
+		url: "/move",
+		data: JSON.stringify({"action":action}),
+		contentType: "application/json; charset=utf-8",
+		dataType: "json",
+	    });
 	}
 
-        $.ajax({
-            type: "POST",
-            url: "/move",
-            data: JSON.stringify({"move":dir}),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-        });
+	else{
+	    $.ajax({
+		type: "POST",
+		url: "/act",
+		data: JSON.stringify({"action":action}),
+		contentType: "application/json; charset=utf-8",
+		dataType: "json",
+	    });
+	}
 
         getMap();
         //getMap(gridSize,drawMap,updatePlayerInfo);
@@ -145,7 +157,6 @@ $(function() {
         for (var i =0;i<users.length;i++){
             var x_pos=users[i].x;
             var y_pos=users[i].y;
-	    console.log("HEY ", x_pos, y_pos, player_x, player_y);
 	//if (users[i] == currentPlayer){
         if ((x_pos == player_x) && (y_pos == player_y)){
 		cell ={x:x_pos,y:y_pos,type:"player"}; 
