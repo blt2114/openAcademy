@@ -103,7 +103,7 @@ def load_screen():
 BUILD = {"place_tile":0, "pickup_left":1, "pickup_down": 2, "pickup_right": 3, "pickup_up": 4}#here to maintain similar structure to AXES
 AXES = {"up":'y',"down":'y',"left":'x',"right":'x'}
 DIRECTIONS = {"up":-1,"down":1,"left":-1,"right":1}
-MOVE_DIR = {"up":(0,-1),"down":(0,1),"left":(-1,0),"right":(1,0),"pickup_left":(-1,0),"pickup_down":(0,1),"pickup_right":(1,0),"pickup_up":(0,-1)}
+MOVE_DIR = {"up":(0,-1),"down":(0,1),"left":(-1,0),"right":(1,0)}
 # updates the users position as well as score and sound if as necessary
 def update_position(user,move):
     screen= get_screen(user)
