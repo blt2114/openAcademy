@@ -33,7 +33,7 @@ def create_user():
     user["health"]=100
     user["score"]=0
     user['carrying'] = 0
-    user["tools"] = [1.2]
+    user["tools"] = [1,2]
     user["current_tool"] = 1
     user["arrows"] = 5
     user["shield"] = True
