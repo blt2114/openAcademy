@@ -8,38 +8,68 @@ $(function() {
     window.onkeydown = function move(keyEvent) {
         var squareLength = 20;
         var svgSize = getSvgSize(gridSize, squareLength);
-        var action  = "";
+        
+	var action  = "";
+	var action_type = ""
+//MOVE KEYS
         if (keyEvent.keyCode == 37) {
             action = "left";
+	    action_type = "move"
         }
         else if (keyEvent.keyCode == 38) {
             action = "up";
+	    action_type = "move"
         }
         else if (keyEvent.keyCode == 39) {
 	    action = "right";
+	    action_type = "move"
         }
         else if (keyEvent.keyCode == 40) {
             action = "down";
+	    action_type = "move"
         }
         // To drop a tile, press a
         //TODO add sounds for pick up/place actons
-	else if (keyEvent.keyCode == 32) {
-            action = "place_tile";
-        }
-	else if (keyEvent.keyCode == 65){
-	    action = "pickup_left";
-	}
-	else if (keyEvent.keyCode == 83){
-	    action = "pickup_down";
-	}
-	else if (keyEvent.keyCode == 68){
-	    action = "pickup_right";
-	}
-	else if (keyEvent.keyCode == 87){
-	    action = "pickup_up"
-	}
 	
-	if (action == "up" || action == "left" || action == "right" || action == "down"){
+//ACTION KEYS
+	
+	//spacebar
+	else if (keyEvent.keyCode == 32) {
+            action = "special";
+	    action_type = "act"
+        }
+	//a
+	else if (keyEvent.keyCode == 65){
+	    action = "left";
+	    action_type = "act"
+	}
+	//s
+	else if (keyEvent.keyCode == 83){
+	    action = "down";
+	    action_type = "act"
+	}
+	//d
+	else if (keyEvent.keyCode == 68){
+	    action = "right";
+	    action_type = "act"
+	}
+	//w
+	else if (keyEvent.keyCode == 87){
+	    action = "up"
+	    action_type = "act"
+	}
+//SWITCH_TOOL KEYS
+	else if (keyEvent.keyCode == 49){
+	    action = "1";
+	    action_type = "switch"
+	}
+
+	else if (keyEvent.keyCode == 50){
+	    action = "2";
+	    action_type = "switch"
+	}
+
+	if (action_type == "move"){
 	    $.ajax({
 		type: "POST",
 		url: "/move",
@@ -49,7 +79,7 @@ $(function() {
 	    });
 	}
 
-	else{
+	else if (action_type == "act"){
 	    $.ajax({
 		type: "POST",
 		url: "/act",
@@ -58,6 +88,17 @@ $(function() {
 		dataType: "json",
 	    });
 	}
+
+	else if (action_type = "switch_tool"){
+	    $.ajax({
+		type: "POST",
+		url: "/switch",
+		data: JSON.stringify({"action":action}),
+		contentType: "application/json; charset=utf-8",
+		dataType: "json",
+	    });
+	}
+	    
 
         getMap();
         //getMap(gridSize,drawMap,updatePlayerInfo);
