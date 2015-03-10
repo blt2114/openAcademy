@@ -27,16 +27,16 @@ $(function() {
             action = "place_tile";
         }
 	else if (keyEvent.keyCode == 65){
-	    action = "pick_up_left";
+	    action = "pickup_left";
 	}
 	else if (keyEvent.keyCode == 83){
-	    action = "pick_up_down";
+	    action = "pickup_down";
 	}
 	else if (keyEvent.keyCode == 68){
-	    action = "pick_up_right";
+	    action = "pickup_right";
 	}
 	else if (keyEvent.keyCode == 87){
-	    action = "pick_up_up"
+	    action = "pickup_up"
 	}
 	
 	if (action == "up" || action == "left" || action == "right" || action == "down"){
