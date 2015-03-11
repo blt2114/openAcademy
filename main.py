@@ -36,7 +36,7 @@ def create_user():
     user["tools"] = [1,2]
     user["current_tool"] = 1
     user["arrows"] = 5
-    user["shield"] = True
+    user["shield"] = False
     users.insert(user)
     return user
 
@@ -187,10 +187,19 @@ def user_at(pos):
     if not screen.count():
         return True
     #this currently fails because users contain other additional fields
-    user = world.find({"X":pos["X"],"Y":pos["Y"],"users":{"$elemMatch":{"x":pos['x'],"y":pos['y']}}})
-    if user.count():
-        return True, user[0]
+    screens = world.find({"X":pos["X"],"Y":pos["Y"],"users":{"$elemMatch":{"x":pos['x'],"y":pos['y']}}})
+    if screens.count():
+        return True
     return False
+
+def get_id_of_user_at(pos): 
+    screen = world.find_one({"X":pos["X"],"Y":pos["Y"],"users":{"$elemMatch":{"x":pos['x'],"y":pos['y']}}})
+    if not screen:
+        print "Error: no user"
+        return
+    for u in screen["users"]:
+        if (u['x'] == pos['x']) and (u['y'] == pos['y']):
+            return u["_id"]
 
 #checks if the tile with given position is empty of players,terrain, and potion
 def tile_is_empty(tile_pos):
@@ -277,7 +286,7 @@ def get_user_info():
 @route("/move", method="POST")
 def move():
     user,user_id, screen = get_user_info()
-    user["shield"] = False
+    users.update({"_id": user_id}, {"$set": {"shield" : False}})
     dir = bottle.request.json["action"]
     #if move in AXES:
     if can_move(user,dir):
@@ -309,7 +318,8 @@ def can_shoot(user, dir):
 #fired arrows stop at edge of current screen
 def shoot(user, user_id, screen, dir):
     if dir == "special":
-        user["shield"] = True
+        users.update({"_id": user_id}, {"$set": {"shield" : True}})
+        return
     users.update({"_id": user_id}, {"$inc" : {"arrows":-1}})
     for magnitude in range(1,20):
         target = get_tile_coord(user,dir,magnitude)
@@ -319,17 +329,19 @@ def shoot(user, user_id, screen, dir):
         if terrain_at(target):
             return
         if user_at(target):
-            is_enemy, enemy = user_at(target)
+            enemy_id = get_id_of_user_at(target)
+        
+            enemy = users.find_one({"_id": enemy_id})
+            print "enemy ", enemy
             if enemy["shield"]:
-                user["health"] -= 1
+                users.update({"_id": user_id}, {"$inc": {"health": - 1}})
             else:
-                enemy["health"] -= 1
-
-
+                users.update({"_id": enemy_id}, {"$inc": {"health": - 1}})
+                
 @route("/act", method = "POST")
 def act():
     user, user_id, screen = get_user_info()
-    user["shield"] = False
+    users.update({"_id": user_id}, {"$set": {"shield" : False}})
     dir = bottle.request.json["action"]
     tool = TOOLS[user["current_tool"]]
     print tool
