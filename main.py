@@ -309,7 +309,8 @@ def can_shoot(user, dir):
 #fired arrows stop at edge of current screen
 def shoot(user, user_id, screen, dir):
     if dir == "special":
-        user["shield"] = True
+        users.update({"_id": user_id}, {"$set":{"shield": True}})
+        return
     users.update({"_id": user_id}, {"$inc" : {"arrows":-1}})
     for magnitude in range(1,20):
         target = get_tile_coord(user,dir,magnitude)
