@@ -6,6 +6,12 @@ from random import randint
 from bottle import route, run, template, request, response
 from bson.objectid import ObjectId
 
+
+if len(sys.argv) is not 2:
+    print "please provide webroot as argument: python main.py <web_root>"
+    sys.exit(2)
+web_root=sys.argv[1]
+
 SCREEN_LEN = 25 #number of spaces per row and column
 WORLD_LEN = 10 #number of screens per row and column of the world
 TOOLS = {1: "pickup", 2: "bow"}
@@ -366,7 +372,7 @@ def switch():
 
 @bottle.get('/<filename>')
 def serve_index(filename):
-    return bottle.static_file(filename, root='/home/riaz/openAcademy/')
+    return bottle.static_file(filename, root=web_root)
 
 bottle.debug(True)
 bottle.run(host='localhost', port=8080)
