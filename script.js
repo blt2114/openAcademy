@@ -245,6 +245,8 @@ $(function() {
 
         var score = document.getElementById("score");
         score.innerHTML = playerData["score"];
+	var arrows = document.getElementById("arrows");
+	arrows.innerHTML = playerData["arrows"];
     }
 
     function drawCells(svgContainer, scales, data, cssClass) {
