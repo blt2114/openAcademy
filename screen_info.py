@@ -10,12 +10,13 @@ world=client.game.world
 users=client.game.users
 SCREEN_LEN = 25
 WORLD_LEN = 10
+MOVE_SPEED = 1 # the number of tiles user move at a time
 
 
 #calculates the a new desired position of a user based on direction.
 # this includes both local and relative coordinates
 def new_coord(user,move): 
-    return get_tile_coord(user,move, 1)
+    return get_tile_coord(user,move, MOVE_SPEED)
 
 #this takes a user document and returns the curren screen document they are in
 def get_screen(user):
