@@ -68,7 +68,10 @@ $(function() {
 	    action = "2";
 	    action_type = "switch"
 	}
-
+	else if (keyEvent.keyCode == 51){
+	    action = "3";
+	    action_type = "switch"
+	}
 	if (action_type == "move"){
 	    $.ajax({
 		type: "POST",
@@ -116,7 +119,7 @@ $(function() {
         drawCells(svgContainer, scales, map.potion, "potion");
         drawCells(svgContainer, scales, map.person, "person");
         drawCells(svgContainer, scales, map.player, "player");//  the current player
-
+	drawCells(svgContainer, scales, map.mine, "mine");
         var groups = { path:svgContainer.append("g"),
             position:svgContainer.append("g") };
 
@@ -156,20 +159,21 @@ $(function() {
     // Queries to server for the user's view and passes the result to the callback
     //function getMap(gridSize, map_cb,player_info_cb) {
     function getMap() {
-        var screenJSON;
+	var screenJSON;
         //Use JQuery to make an AJAX request for the JSON screen object
         $.getJSON('load_screen', function(data) { 
             screen_data=data["screen"];
 
+	    //console.log("print line 167");
             player_data = data["player"];
+	    updatePlayerInfo(player_data);
 	    player_x = player_data["x"];
 	    player_y = player_data["y"];
             var map = completeMap(gridSize,screen_data["tiles"],screen_data["users"],player_x,player_y);
             drawMap(map);
 
 	    //print player_data
-	    //console.log("SUP ", player_data['x'])
-            updatePlayerInfo(player_data);
+            
 
             sound = data["sound"];
             playSound(sound);
@@ -179,7 +183,7 @@ $(function() {
     // Construct the map obj using the terrain and users arrays
     function completeMap(gridSize,terrain,users, player_x, player_y){
 	//, current_player){
-        var map = { grid:[], grass:[], rock:[], potion:[],person:[],player:[] };
+        var map = { grid:[], grass:[], rock:[], potion:[],person:[],player:[], mine:[]};
         for (var x =0 ; x<gridSize.x;x++){
             map.grid[x]=[];
         } 
@@ -206,7 +210,6 @@ $(function() {
                 map["player"].push(cell);
             }else{
                 cell ={x:x_pos,y:y_pos,type:"person"}; 
-                console.log("map.grid: ",map.grid);
                 map.grid[x_pos][y_pos]=cell;
                 map["person"].push(cell);
             }
@@ -244,9 +247,12 @@ $(function() {
         health.value=playerData["health"];
 
         var score = document.getElementById("score");
-        score.innerHTML = playerData["score"];
+        console.log("updating score");
+	score.innerHTML = playerData["score"];
 	var arrows = document.getElementById("arrows");
 	arrows.innerHTML = playerData["arrows"];
+	var mines = document.getElementById("mines");
+	mines.innerHTML = playerData["mines"];
     }
 
     function drawCells(svgContainer, scales, data, cssClass) {

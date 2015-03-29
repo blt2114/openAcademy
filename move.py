@@ -6,12 +6,11 @@ from random import randint
 from bottle import route, run, template, request, response
 from bson.objectid import ObjectId
 from screen_info import *
+from spawn import *
+
 def can_move(user,move):
     new_pos = new_coord(user,move)
     return tile_is_free(new_pos)
-
-
-
 
 @route("/move", method="POST")
 def move():
@@ -54,10 +53,20 @@ def update_position(user,move):
         world.update({"_id":new_screen['_id']},{"$set":new_screen})
     users.update({"_id": user["_id"]}, {"$set" : user})
     if potion_at(new_pos):
-        users.update({"_id":user['_id']},{"$inc":{'health':+10}})
+        users.update({"_id":user['_id']},{"$inc":{'health':+1}})
         users.update({"_id":user['_id']},{"$set":{'sound':"potion"}})
         world.update({"_id":screen['_id']},{"$pull":{"tiles":{"type":'potion',"x":new_pos['x'],"y":new_pos['y']}}})
+    if mine_at(new_pos):
+        users.update({"_id": user['_id']},{"$inc":{'health':-50}})    
+        #add sound effect here
+        world.update({"_id":screen['_id']},{"$pull":{"tiles":{"type":'mine',"x":new_pos['x'],"y":new_pos['y']}}})
+    user, user_id, screen = get_user_info()
+    if user["health"] <= 0:
+        respawn(user)
+
     else:
         users.update({"_id":user['_id']},{"$inc":{'score':+1}})
         users.update({"_id":user['_id']},{"$set":{'sound':"score"}})
     #world.update({"users":{"$elemMatch":{"_id":uid}}},{"$inc":{'users.$.'+AXES[move]:DIRECTIONS[move]}})
+
+

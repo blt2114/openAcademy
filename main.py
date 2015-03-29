@@ -6,6 +6,7 @@ from random import randint
 from bottle import route, run, template, request, response
 from bson.objectid import ObjectId
 from arrow import *
+from mine import *
 from carry import *
 from move import *
 from screen_info import *
@@ -17,17 +18,17 @@ if len(sys.argv) is not 2:
 web_root=sys.argv[1]
 SCREEN_LEN = 25 #number of spaces per row and column
 WORLD_LEN = 10 #number of screens per row and column of the world
-TOOLS = {1: "pickup", 2: "bow"}
+TOOLS = {1: "pickup", 2: "bow", 3: "mine"}
 
 def generate_tiles():
     #generate tiles in random positions in SCREEN_LENXSCREEN_LEN  grid.  1/6 of positions
     tiles=[]
     for x in range(SCREEN_LEN):
         for y in range(SCREEN_LEN):
-            c = randint(1,6)
-            if c > 5:
+            c = randint(1,12)
+            if c == 6:
                 tiles.append({'type':"rock",'x':x,'y':y})
-            elif c>4:
+            elif c == 5:
                 tiles.append({'type':"potion",'x':x,'y':y})
     return tiles 
 
@@ -38,7 +39,9 @@ users=client.game.users
 
 def create_user():
     print "creating user"
-    user = {'X':1,'Y':1,'x': randint(10,15), 'y':randint(10,15)}
+    user = {'X':1,'Y':1,'x': randint(1,20), 'y':randint(1,20)}
+    while not tile_is_empty(user):
+        user = {'X':1,'Y':1,'x': randint(1,20), 'y':randint(1,20)}
     user["health"]=100
     user["score"]=0
     user['carrying'] = 0
@@ -46,6 +49,7 @@ def create_user():
     user["current_tool"] = 1
     user["arrows"] = 5
     user["shield"] = False
+    user["mines"] = 5
     users.insert(user)
     return user
 
@@ -102,10 +106,7 @@ def load_screen():
     users.update({"_id":user_id},{"$unset":{'sound':""}})
     return {'screen':screen,'player':current_user,"sound":sound}
 
-#BUILD = {"place_tile":0, "pickup_left":1, "pickup_down": 2, "pickup_right": 3, "pickup_up": 4}#here to maintain similar structure to AXES
-#AXES = {"up":'y',"down":'y',"left":'x',"right":'x'}
 PICKUP = ["pickup_left","pickup_right","pickup_up","pickup_down", "pickup_special"]
-#AXES = ["up", "down", "left", "right"]
 DIRECTIONS = {"up":-1,"down":1,"left":-1,"right":1}
 @route("/act", method = "POST")
 def act():
@@ -124,13 +125,27 @@ def act():
             shoot(user, user_id,screen, dir)
         else:
             print "invalid_shoot"
+    elif tool == "mine":
+        if can_lay_mine(user, dir):
+            lay_mine(user)
+        else:
+            print "invalid mine"
     else:
         return
+
+def can_switch(user):
+    return not(carrying_tile(user))
+'''
+def switch(user, user_id):
+    tool = int(bottle.request.json["action"])
+    users.update({"_id": user_id}, {'$set': {"current_tool": tool}})
+'''
 @route("/switch", method = "POST")
 def switch():
     user, user_id, screen = get_user_info()
-    tool = int(bottle.request.json["action"])
-    users.update({"_id": user_id}, {'$set': {"current_tool": tool}})
+    if can_switch(user):    
+        tool = int(bottle.request.json["action"])
+        users.update({"_id": user_id}, {'$set': {"current_tool": tool}})
 
 @bottle.get('/<filename>')
 def serve_index(filename):

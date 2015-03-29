@@ -20,6 +20,11 @@ body {
     stroke: #C7C7C7;
 }
 
+.mine {
+    fill: yellow;
+    stroke-width: 1px;
+    stroke: #ff6600;
+}
 .person {
     fill:red; 
     stroke-width: 3px;
@@ -37,3 +42,4 @@ body {
     stroke-width: 1px;
     stroke: #FF6600;
 }
+
