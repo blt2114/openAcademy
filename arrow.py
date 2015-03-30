@@ -4,6 +4,7 @@ import bottle
 import sys
 from bson.objectid import ObjectId
 from carry import *
+from spawn import *
 
 
 def has_arrows(user):
@@ -31,8 +32,14 @@ def shoot(user, user_id, screen, dir):
             return
         if user_at(target):
             is_enemy, enemy = user_at(target)
-            print "enemy", enemy
+            #print "enemy", enemy
             if enemy["shield"]:
-                user["health"] -= 1
+                users.update({"_id":user['_id']},{"$inc": {'health': -10}})
+                user = users.find_one({"_id":user['_id']})
+                if (user['health'] <= 0):
+                    respawn(user)
             else:
-                enemy["health"] -= 1
+                users.update({"_id":enemy['_id']},{"$inc": {'health': -30}})
+                enemy = users.find_one({"_id":enemy['_id']})
+                if enemy["health"] <= 0:
+                    respawn(enemy)
