@@ -53,7 +53,8 @@ def update_position(user,move):
         world.update({"_id":new_screen['_id']},{"$set":new_screen})
     users.update({"_id": user["_id"]}, {"$set" : user})
     if potion_at(new_pos):
-        users.update({"_id":user['_id']},{"$inc":{'health':+1}})
+        if user['health'] < 100:
+            users.update({"_id":user['_id']},{"$inc":{'health':+1}})
         users.update({"_id":user['_id']},{"$set":{'sound':"potion"}})
         world.update({"_id":screen['_id']},{"$pull":{"tiles":{"type":'potion',"x":new_pos['x'],"y":new_pos['y']}}})
     if mine_at(new_pos):

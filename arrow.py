@@ -31,6 +31,7 @@ def shoot(user, user_id, screen, dir):
             return
         if user_at(target):
             is_enemy, enemy = user_at(target)
+            print "enemy", enemy
             if enemy["shield"]:
                 user["health"] -= 1
             else:
