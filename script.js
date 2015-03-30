@@ -4,6 +4,7 @@ $(function() {
     var scoreSound = new Audio('score.mp3');
     var potionSound = new Audio('potion.mp3');
     var gridSize = { x:SCREEN_LEN, y:SCREEN_LEN };
+    var current_tool = 1
     // Draws the terrain and people  onto the map
     window.onkeydown = function move(keyEvent) {
         var squareLength = 20;
@@ -86,6 +87,7 @@ $(function() {
 	    $.ajax({
 		type: "POST",
 		url: "/act",
+		//data: JSON.stringify({"action":action, "current_tool": current_tool}),
 		data: JSON.stringify({"action":action}),
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
@@ -93,6 +95,7 @@ $(function() {
 	}
 
 	else if (action_type = "switch_tool"){
+	    //current_tool = action;
 	    $.ajax({
 		type: "POST",
 		url: "/switch",
@@ -100,6 +103,7 @@ $(function() {
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 	    });
+	    
 	}
 	    
 
@@ -245,14 +249,15 @@ $(function() {
     function updatePlayerInfo(playerData){
         var health = document.getElementById("health");
         health.value=playerData["health"];
-
         var score = document.getElementById("score");
-        console.log("updating score");
 	score.innerHTML = playerData["score"];
 	var arrows = document.getElementById("arrows");
 	arrows.innerHTML = playerData["arrows"];
 	var mines = document.getElementById("mines");
 	mines.innerHTML = playerData["mines"];
+	TOOLS = {1:"PICKUP", 2:"BOW", 3:"MINES"}
+	var current_tool = document.getElementById("current_tool");
+	current_tool.innerHTML = TOOLS[playerData["current_tool"]];
     }
 
     function drawCells(svgContainer, scales, data, cssClass) {

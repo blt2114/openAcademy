@@ -113,6 +113,7 @@ def act():
     user, user_id, screen = get_user_info()
     users.update({"_id": user_id}, {"$set": {"shield" : False}})
     dir = bottle.request.json["action"]
+    #tool = TOOLS[bottle.request.json["current_tool"]];
     tool = TOOLS[user["current_tool"]]
     print tool
     if tool== "pickup":
