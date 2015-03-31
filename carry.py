@@ -36,5 +36,5 @@ def pickup(user,user_id,dir):
 
 def update_after_pickup(user, move):
     screen = get_screen(user)
-    new_pos = new_coord(user,move)
+    new_pos = new_user_coord(user,move)
     world.update({"X":new_pos['X'],"Y":new_pos['Y']},{"$pull":{"tiles":{'x':new_pos['x'],'y':new_pos['y'],'type': 'rock'}}})
