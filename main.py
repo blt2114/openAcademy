@@ -165,14 +165,3 @@ def serve_index(filename):
 
 bottle.debug(True)
 bottle.run(host='localhost', port=8080)
-
-
-def create_AI():
-
-    user = create_user()
-    
-
-    while True:
-        time.sleep(1)
-
-
