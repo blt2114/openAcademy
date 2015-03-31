@@ -36,7 +36,15 @@ def potion_at(pos):
     if tile.count():
         return True
     return False
-
+def mine_at(pos):
+    screen = get_screen(pos)
+    screen = world.find({"X":pos["X"],"Y":pos["Y"]})
+    if not screen.count():
+        return True 
+    tile = world.find({"X":pos["X"],"Y":pos["Y"],"tiles":{"type":"mine","x":pos['x'],"y":pos['y']}})
+    if tile.count():
+        return True
+    return False
 # checks the if the position provided has a rock on it.
 def terrain_at(pos):
     screen = get_screen(pos)
@@ -54,11 +62,18 @@ def user_at(pos):
     screen = get_screen(pos)
     screen = world.find({"X":pos["X"],"Y":pos["Y"]})
     if not screen.count():
-        return True
+        return False
+        #return True
     #this currently fails because users contain other additional fields
-    user = world.find({"X":pos["X"],"Y":pos["Y"],"users":{"$elemMatch":{"x":pos['x'],"y":pos['y']}}})
-    if user.count():
-        return True, user[0]
+    users = world.find_one({"X":pos["X"],"Y":pos["Y"],"users":{"$elemMatch":{"x":pos['x'],"y":pos['y']}}},{"_id": 0, "users":1})
+    #print "users", users
+    if users:
+        for user in users["users"]:
+            #print "user", user
+            if user['x'] == pos['x'] and user['y'] == pos['y']:
+                return True, user
+    #if user.count():
+        #return True, user[0]
     return False
 
 #checks if the tile with given position is empty of players,terrain, and potion

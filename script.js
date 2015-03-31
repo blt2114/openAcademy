@@ -4,6 +4,7 @@ $(function() {
     var scoreSound = new Audio('score.mp3');
     var potionSound = new Audio('potion.mp3');
     var gridSize = { x:SCREEN_LEN, y:SCREEN_LEN };
+    var current_tool = 1
     // Draws the terrain and people  onto the map
     window.onkeydown = function move(keyEvent) {
         var squareLength = 20;
@@ -68,7 +69,10 @@ $(function() {
 	    action = "2";
 	    action_type = "switch"
 	}
-
+	else if (keyEvent.keyCode == 51){
+	    action = "3";
+	    action_type = "switch"
+	}
 	    $.ajax({
 		type: "POST",
 		url: "/"+action_type,
@@ -76,7 +80,32 @@ $(function() {
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 	    });
+/*
+	else if (action_type == "act"){
+	    $.ajax({
+		type: "POST",
+		url: "/act",
+		//data: JSON.stringify({"action":action, "current_tool": current_tool}),
+		data: JSON.stringify({"action":action}),
+		contentType: "application/json; charset=utf-8",
+		dataType: "json",
+	    });
+	}
 
+	else if (action_type = "switch_tool"){
+	    //current_tool = action;
+	    $.ajax({
+		type: "POST",
+		url: "/switch",
+		data: JSON.stringify({"action":action}),
+		contentType: "application/json; charset=utf-8",
+		dataType: "json",
+	    });
+	    
+	}
+	    
+>>>>>>> 53fd604dd86432d6fa9fb815ae8793f2389de91e
+*/
         getMap();
     }
     function drawMap(map){
@@ -92,7 +121,7 @@ $(function() {
         drawCells(svgContainer, scales, map.potion, "potion");
         drawCells(svgContainer, scales, map.person, "person");
         drawCells(svgContainer, scales, map.player, "player");//  the current player
-
+	drawCells(svgContainer, scales, map.mine, "mine");
         var groups = { path:svgContainer.append("g"),
             position:svgContainer.append("g") };
 
@@ -128,20 +157,21 @@ $(function() {
     // Queries to server for the user's view and passes the result to the callback
     //function getMap(gridSize, map_cb,player_info_cb) {
     function getMap() {
-        var screenJSON;
+	var screenJSON;
         //Use JQuery to make an AJAX request for the JSON screen object
         $.getJSON('load_screen', function(data) { 
             screen_data=data["screen"];
 
+	    //console.log("print line 167");
             player_data = data["player"];
+	    updatePlayerInfo(player_data);
 	    player_x = player_data["x"];
 	    player_y = player_data["y"];
             var map = completeMap(gridSize,screen_data["tiles"],screen_data["users"],player_x,player_y);
             drawMap(map);
 
 	    //print player_data
-	    //console.log("SUP ", player_data['x'])
-            updatePlayerInfo(player_data);
+            
 
             sound = data["sound"];
             playSound(sound);
@@ -151,7 +181,7 @@ $(function() {
     // Construct the map obj using the terrain and users arrays
     function completeMap(gridSize,terrain,users, player_x, player_y){
 	//, current_player){
-        var map = { grid:[], grass:[], rock:[], potion:[],person:[],player:[] };
+        var map = { grid:[], grass:[], rock:[], potion:[],person:[],player:[], mine:[]};
         for (var x =0 ; x<gridSize.x;x++){
             map.grid[x]=[];
         } 
@@ -178,7 +208,6 @@ $(function() {
                 map["player"].push(cell);
             }else{
                 cell ={x:x_pos,y:y_pos,type:"person"}; 
-                console.log("map.grid: ",map.grid);
                 map.grid[x_pos][y_pos]=cell;
                 map["person"].push(cell);
             }
@@ -214,11 +243,15 @@ $(function() {
     function updatePlayerInfo(playerData){
         var health = document.getElementById("health");
         health.value=playerData["health"];
-
         var score = document.getElementById("score");
-        score.innerHTML = playerData["score"];
+	score.innerHTML = playerData["score"];
 	var arrows = document.getElementById("arrows");
 	arrows.innerHTML = playerData["arrows"];
+	var mines = document.getElementById("mines");
+	mines.innerHTML = playerData["mines"];
+	TOOLS = {1:"PICKUP", 2:"BOW", 3:"MINES"}
+	var current_tool = document.getElementById("current_tool");
+	current_tool.innerHTML = TOOLS[playerData["current_tool"]];
     }
 
     function drawCells(svgContainer, scales, data, cssClass) {
