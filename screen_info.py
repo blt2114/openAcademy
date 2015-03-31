@@ -12,7 +12,6 @@ SCREEN_LEN = 25
 WORLD_LEN = 10
 MOVE_SPEED = 1 # the number of tiles user move at a time
 
-
 #calculates the a new desired position of a user based on direction.
 # this includes both local and relative coordinates
 def new_user_coord(user,move): 

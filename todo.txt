@@ -1,0 +1,31 @@
+Brian:
+clean up code
+solve concurrency issues with moving players
+create more sensical file structure
+set background pictures on grid
+Write tests
+
+
+
+Riaz:
+find sounds for all actions
+        -laying mine
+        -explosion of min
+        -shooting arrow
+                -hit/miss are different?
+        -dying and respawning
+        -picking up block
+        -putting down block
+        -putting on shield
+
+collect images for background images
+        -person
+        -grass
+        -rock
+        -team
+        -icons corresponding to tools
+
+
+Longer term goals:
+make more continuos game space by increasing size of grid size and making players have size
+Condider orientation of the players
