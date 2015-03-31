@@ -129,6 +129,7 @@ def act():
 @route("/switch", method = "POST")
 def switch():
     user, user_id, screen = get_user_info()
+    print "action is " + bottle.request.json["action"]
     tool = int(bottle.request.json["action"])
     users.update({"_id": user_id}, {'$set': {"current_tool": tool}})
 

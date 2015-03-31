@@ -24,7 +24,7 @@ def can_pickup(user,dir):
 
 
 def carrying_tile(user):
-    return user["carrying"] != 0
+    return user.has_key("carrying") and user["carrying"] != 0
 
 def pickup(user,user_id,dir):
     if dir == "special":

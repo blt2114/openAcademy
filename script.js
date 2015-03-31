@@ -69,39 +69,15 @@ $(function() {
 	    action_type = "switch"
 	}
 
-	if (action_type == "move"){
 	    $.ajax({
 		type: "POST",
-		url: "/move",
+		url: "/"+action_type,
 		data: JSON.stringify({"action":action}),
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 	    });
-	}
-
-	else if (action_type == "act"){
-	    $.ajax({
-		type: "POST",
-		url: "/act",
-		data: JSON.stringify({"action":action}),
-		contentType: "application/json; charset=utf-8",
-		dataType: "json",
-	    });
-	}
-
-	else if (action_type = "switch_tool"){
-	    $.ajax({
-		type: "POST",
-		url: "/switch",
-		data: JSON.stringify({"action":action}),
-		contentType: "application/json; charset=utf-8",
-		dataType: "json",
-	    });
-	}
-	    
 
         getMap();
-        //getMap(gridSize,drawMap,updatePlayerInfo);
     }
     function drawMap(map){
         $("svg").remove();
@@ -148,10 +124,6 @@ $(function() {
         }
 
     }
-    /*
-     * function isBorder(x, y, gridSize) {
-     return x==0 || y == 0 || x == (gridSize.x-1) || y == (gridSize.y-1);
-     }*/
 
     // Queries to server for the user's view and passes the result to the callback
     //function getMap(gridSize, map_cb,player_info_cb) {
@@ -267,10 +239,8 @@ $(function() {
 
     var svgSize = getSvgSize(gridSize, squareLength);
     getMap();
-    //       getMap(gridSize, drawMap,updatePlayerInfo);
     window.setInterval(function(){
         getMap();
-        //            getMap(gridSize,drawMap,updatePlayerInfo);
     },500);
 }
 );

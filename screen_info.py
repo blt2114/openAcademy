@@ -15,7 +15,7 @@ MOVE_SPEED = 1 # the number of tiles user move at a time
 
 #calculates the a new desired position of a user based on direction.
 # this includes both local and relative coordinates
-def new_coord(user,move): 
+def new_user_coord(user,move): 
     return get_tile_coord(user,move, MOVE_SPEED)
 
 #this takes a user document and returns the curren screen document they are in
@@ -69,7 +69,7 @@ def tile_is_empty(tile_pos):
     return True
 
 #checks if the tile with the tile with the given position is empyu of players and terrain
-def tile_is_free(tile_pos):
+def tile_is_walkable (tile_pos):
     if user_at(tile_pos) or terrain_at(tile_pos):
         return False
     return True

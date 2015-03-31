@@ -6,12 +6,10 @@ from random import randint
 from bottle import route, run, template, request, response
 from bson.objectid import ObjectId
 from screen_info import *
+
 def can_move(user,move):
-    new_pos = new_coord(user,move)
-    return tile_is_free(new_pos)
-
-
-
+    new_pos = new_user_coord(user,move)
+    return tile_is_walkable(new_pos)
 
 @route("/move", method="POST")
 def move():
@@ -29,7 +27,7 @@ def move():
 # updates the users position as well as score and sound if as necessary
 def update_position(user,move):
     screen= get_screen(user)
-    new_pos= new_coord(user,move)
+    new_pos= new_user_coord(user,move)
     user['y']=new_pos['y']
     user['x']=new_pos['x']
     #if playermove does not result in changing screens
