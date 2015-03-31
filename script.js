@@ -80,32 +80,6 @@ $(function() {
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 	    });
-/*
-	else if (action_type == "act"){
-	    $.ajax({
-		type: "POST",
-		url: "/act",
-		//data: JSON.stringify({"action":action, "current_tool": current_tool}),
-		data: JSON.stringify({"action":action}),
-		contentType: "application/json; charset=utf-8",
-		dataType: "json",
-	    });
-	}
-
-	else if (action_type = "switch_tool"){
-	    //current_tool = action;
-	    $.ajax({
-		type: "POST",
-		url: "/switch",
-		data: JSON.stringify({"action":action}),
-		contentType: "application/json; charset=utf-8",
-		dataType: "json",
-	    });
-	    
-	}
-	    
->>>>>>> 53fd604dd86432d6fa9fb815ae8793f2389de91e
-*/
         getMap();
     }
     function drawMap(map){
