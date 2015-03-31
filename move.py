@@ -61,7 +61,6 @@ def update_position(user,move):
         users.update({"_id": user['_id']},{"$inc":{'health':-50}})    
         #add sound effect here
         world.update({"_id":screen['_id']},{"$pull":{"tiles":{"type":'mine',"x":new_pos['x'],"y":new_pos['y']}}})
-    user, user_id, screen = get_user_info()
     if user["health"] <= 0:
         respawn(user)
 

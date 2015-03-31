@@ -119,7 +119,8 @@ def get_tile_coord(user,dir,magnitude):
 def find_user(user_id):
     user =users.find_one({"_id":user_id})
     return user
-def get_user_info():
+
+def get_user_info( request):
     user_id = None
     if request.get_cookie("user_id"):
         user_id_str=request.get_cookie("user_id")

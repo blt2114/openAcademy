@@ -66,6 +66,20 @@ def create_world():
                 continue
             world.insert(screen)
 
+
+@route("/move", method="POST")
+def move():
+    user,user_id, screen = get_user_info(request)
+    user["shield"] = False
+    dir = bottle.request.json["action"]
+    #if move in AXES:
+    if can_move(user,dir):
+        update_position(user,dir)
+    else:
+        users.update({"_id":user_id},{"$inc":{'health':-1}})
+        users.update({"_id":user_id},{"$set":{'sound':"damage"}})
+        print "invalid move"
+
 @bottle.get("/load_screen")
 def load_screen():
     screen1 = {}
@@ -110,7 +124,7 @@ PICKUP = ["pickup_left","pickup_right","pickup_up","pickup_down", "pickup_specia
 DIRECTIONS = {"up":-1,"down":1,"left":-1,"right":1}
 @route("/act", method = "POST")
 def act():
-    user, user_id, screen = get_user_info()
+    user, user_id, screen = get_user_info(request)
     users.update({"_id": user_id}, {"$set": {"shield" : False}})
     dir = bottle.request.json["action"]
     #tool = TOOLS[bottle.request.json["current_tool"]];
@@ -139,7 +153,7 @@ def can_switch(user):
 
 @route("/switch", method = "POST")
 def switch():
-    user, user_id, screen = get_user_info()
+    user, user_id, screen = get_user_info(request)
     if can_switch(user):    
         tool = int(bottle.request.json["action"])
         users.update({"_id": user_id}, {'$set': {"current_tool": tool}})
@@ -148,5 +162,17 @@ def switch():
 def serve_index(filename):
     return bottle.static_file(filename, root=web_root)
 
+
 bottle.debug(True)
 bottle.run(host='localhost', port=8080)
+
+
+def create_AI():
+
+    user = create_user()
+    
+
+    while True:
+        time.sleep(1)
+
+
