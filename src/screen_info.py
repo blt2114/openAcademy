@@ -38,7 +38,7 @@ def potion_at(pos):
 
 def lava_at(pos, team):
     color = 'red'
-    print "team", team
+    #print "team", team
     if team == 'red':
         color = 'blue' 
     screen = get_screen(pos)
