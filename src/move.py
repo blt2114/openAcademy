@@ -50,6 +50,8 @@ def update_position(user,move):
         #add sound effect here
         users.update({"_id":user['_id']},{"$set":{'sound':"mine"}})
         world.update({"_id":screen['_id']},{"$pull":{"tiles":{"type":'mine',"x":new_pos['x'],"y":new_pos['y']}}})
+    if lava_at(new_pos, user['team']):
+        users.update({"_id": user['_id']},{"$inc":{'health':-50}})     
     if user["health"] <= 0:
         respawn(user)
     else:
