@@ -72,7 +72,7 @@ $(function() {
 	    action = "3";
 	    action_type = "switch"
 	}
-        if 
+        if (action != ""){ 
 	    $.ajax({
 		type: "POST",
 		url: "/"+action_type,
@@ -81,6 +81,7 @@ $(function() {
 		dataType: "json",
 	    });
         getMap();
+        }
     }
     function drawMap(map){
         $("span").html("");
