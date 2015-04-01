@@ -94,13 +94,7 @@ def move():
     #if move in AXES:
     pos = new_user_coord(user, move)
     if can_move(user,dir):
-        if lava_at(pos, user['team']):
-            users.update({'_id':user['_d']},{"$inc":{"health":-50}})
-            user, user_id, screen = get_user_info()
-            if user['health'] <= 0:
-                respawn(user)
-            else:
-                update_position(user,dir)
+        update_position(user,dir)
     else:
         users.update({"_id":user_id},{"$inc":{'health':-1}})
         users.update({"_id":user_id},{"$set":{'sound':"damage"}})
