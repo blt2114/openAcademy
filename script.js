@@ -100,7 +100,7 @@ $(function() {
         drawCells(svgContainer, scales, map.rock, "rock");
 	drawCells(svgContainer, scales, map.structure, "structure");
 	drawCells(svgContainer, scales, map.blue_lava, "blue_lava");
-	drawCells(svgContainer, scales, map.red_lava, "red_lava");
+	drawCells(svgContainer, scales, map.blue_lava, "red_lava");
         drawCells(svgContainer, scales, map.potion, "potion");
         drawCells(svgContainer, scales, map.person, "person");
         drawCells(svgContainer, scales, map.player, "player");//  the current player

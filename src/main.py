@@ -44,7 +44,6 @@ def generate_tiles():
 client=MongoClient()
 world=client.game.world
 users=client.game.users
-structures=client.game.structures
 RED = {'X': 1, 'Y': 1}
 BLUE = {'X':3, 'Y': 1}
 def create_user():
@@ -80,6 +79,7 @@ def create_world():
             screen['X']=X
             screen['Y']=Y
             screen['users']=[]
+            screen['structures'] = []
             if world.find({'X':X,'Y':Y}).count():
                 sys.stderr.write("screen in this position already exists.")
                 continue

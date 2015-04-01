@@ -227,10 +227,13 @@ $(function() {
 	arrows.innerHTML = playerData["arrows"];
 	var mines = document.getElementById("mines");
 	mines.innerHTML = playerData["mines"];
-	TOOLS = {1:"PICKUP", 2:"BOW", 3:"MINES", 4: "BUILD"}
+	var screenX = document.getElementById("screenX");
+	screenX.innerHTML = playerData["X"];
+	var screenY = document.getElementById("screenY");
+	screenY.innerHTML = playerData["Y"];
+	TOOLS = {1:"PICKUP", 2:"BOW", 3:"MINES", 4: "BUILD"};
         var last_tool= $(".current_tool").attr("id");
         $("#"+TOOLS[playerData["current_tool"]]).addClass("current_tool");
-
         if (last_tool === TOOLS[playerData["current_tool"]]){
                 return;
         } 

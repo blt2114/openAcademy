@@ -7,7 +7,6 @@ from carry import *
 from spawn import *
 
 
-structures = client.game.structures
 def build(user, dir):
     pos = {'X': user['X'], 'Y': user['Y'], 'x':user['x'],'y':user['y']}
     build_generator(user, pos)
@@ -42,18 +41,19 @@ def build_generator(user, pos):
     for p in pattern:
         world.update({"X":p['X'],'Y':p['Y']},{'$pull': {'tiles': {'x':p['x'],'y':p['y'],'type':'rock'}}})
         world.update({"X":p['X'],'Y':p['Y']},{'$push': {'tiles': {'x':p['x'],'y':p['y'],'type':'structure'}}})
-    gen = {"X": pos['X'], "Y": pos['Y'], 'type': 'generator', 'x': pos['x'], 'y': pos['y'], 'team': user['team']}
-    add_lava_if_aligned(gen)
-    structures.insert(gen)
+    gen = {'type': 'generator', 'x': pos['x'], 'y': pos['y'], 'team': user['team']}
+    screen = get_screen(user)
+    add_lava_if_aligned(gen, screen)
+    world.update({"_id":screen['_id']}, {"$push":{"structures": gen}})
         
-def add_lava_if_aligned(gen):
-    if structures.count() == 0:
-        return
-    generators = structures.find({'type': 'generator'})
+def add_lava_if_aligned(gen, screen):
+    #generators = world.find({'_id':screen['_id']},{'structures' : 1, '_id': 0})
+    generators = screen['structures']
     aligned_gens = []
     for g in generators:
-        if g['X'] == gen['X'] and g['Y'] == gen['Y']:
-            if g['x'] == gen['x']:
+        print "g", g
+        if g['type'] == 'generator' and g['team'] == gen['team']:
+            if g['x'] == gen['x']:         
                 a = g['y']
                 b = gen['y']
                 if g['y'] > gen['y']:
@@ -61,8 +61,8 @@ def add_lava_if_aligned(gen):
                     b = g['y']
                 for x in range(gen['x']-1,gen['x']+2):
                     for y in range(a+2,b-1):
-                        world.update({"X":gen['X'],'Y':gen['Y']},{'$pull':{'tiles':{'x':x, 'y': y,}}})
-                        world.update({"X":gen['X'],'Y':gen['Y']},{"$push":{'tiles':{'x':x, 'y': y, 'type': gen['team']+'_lava'}}})
+                        world.update({"X":screen['X'],'Y':screen['Y']},{'$pull':{'tiles':{'x':x, 'y': y,}}})
+                        world.update({"X":screen['X'],'Y':screen['Y']},{"$push":{'tiles':{'x':x, 'y': y, 'type': gen['team']+'_lava'}}})
             elif g['y'] == gen['y']:
                 a = g['x']
                 b = gen['x']
@@ -71,7 +71,7 @@ def add_lava_if_aligned(gen):
                     b = g['x']
                 for x in range(a+2, b-1):
                     for y in range(gen['y']-1, gen['y']+2):
-                        world.update({"X":gen['X'],'Y':gen['Y']},{'$pull':{'tiles':{'x':x, 'y': y,}}})
-                        world.update({"X":gen['X'],'Y':gen['Y']},{"$push":{'tiles':{'x':x, 'y': y, 'type': gen['team']+'_lava'}}})
+                        world.update({"X":screen['X'],'Y':screen['Y']},{'$pull':{'tiles':{'x':x, 'y': y,}}})
+                        world.update({"X":screen['X'],'Y':screen['Y']},{"$push":{'tiles':{'x':x, 'y': y, 'type': gen['team']+'_lava'}}})
                 
 

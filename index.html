@@ -9,29 +9,33 @@
         <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
         !-->
-        <script src="d3.v3.min.js"></script>
-        <script src="jquery-1.9.1.min.js"></script>
-        <script src="jquery.min.js"></script>
-        <script type="text/javascript" src="buttonPress.js"></script>
+        <script src="js/d3.v3.min.js"></script>
+        <script src="js/jquery-1.9.1.min.js"></script>
+        <script src="js/jquery.min.js"></script>
+        <script type="text/javascript" src="js/buttonPress.js"></script>
 
-        <script src="script.js"></script>
+        <script src="js/script.js"></script>
         <link rel="stylesheet" type="text/css" href="style.css">
     </head>
     <body>
         <h1>MongoDB Powered Game with Local Rendering</h1>
+    <div style="height:500px"></div>
         <div class="display">
 	</div>
         <br/>
+        <table>
+            <tr>
+                <td>Score: <div id="score"></div></td>
+                <td>Arrows: <div id="arrows"></div></td>
+                <td>Mines: <div id="mines"></div></td>
+		<td>X: <div id = "screenX"></div></td>
+		<td>Y: <div id = "screenY"></div></td>
+                <td id="pickup" class="current_tool">1 | PICKUP </td>
+                <td id="bow">2 | BOW </td>
+                <td id="mine">3 | MINE </td>
+		<td id = "build">4 | BUILD </td>
+            </tr>
+        </table>
+    HEALTH: <progress id='health' value max="100"></progress>
     </body>
-    <div>Score: <div id="score"></div></div>
-    <div>Arrows: <div id="arrows"></div></div>
-    <div>Mines: <div id = "mines"></div></div>
-    <div>Current Tool: <div id = "current_tool"></div></div>
-    <progress id='health' value max="100"></progress>
-    TOOLS
-    <p>Key | Tool</p>
-    <p> 1  | PICKUP</p>
-    <p> 2  | BOW</p>
-    <p> 3  | MINE</p>
-     </p> 
 </html>
