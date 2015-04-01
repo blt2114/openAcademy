@@ -1,5 +1,5 @@
 body {
-    background-color: #EEEEEE;
+/*    background-color: #EEEEEE;*/
 }
 
 .svg {
@@ -9,15 +9,19 @@ body {
 
 /**TEXTURES FOR DISPLAY**/
 .grass {
-    fill: #3CAB26;
-    stroke-width: 1px;
-    stroke: #2D801C;
+    position: absolute;
+    width: 20px;
+    background-size: 20px 20px;
+    height: 20px;
+    background-image: url("images/grass.png");
 }
 
 .rock {
-    fill: #858585;
-    stroke-width: 1px;
-    stroke: #C7C7C7;
+    position: absolute;
+    width: 20px;
+    background-size: 20px 20px;
+    height: 20px;
+    background-image: url("images/rock.jpg");
 }
 .structure{
     fill: brown;
@@ -40,25 +44,43 @@ body {
 }
 
 .mine {
-    fill: yellow;
-    stroke-width: 1px;
-    stroke: #ff6600;
+    position: absolute;
+    width: 20px;
+    background-size: 20px 20px;
+    height: 20px;
+    background-image: url("images/mine.png");
 }
+
 .person {
-    fill: white; 
-    stroke-width: 3px;
-    stroke: #2973F2;
+    position: absolute;
+    width: 20px;
+    background-size: 20px 20px;
+    height: 20px;
+    background-image: url("images/person.jpg");
 }
 
 .player {
-    fill: black;
-    stroke-width: 3px;
-    stroke:#2973F2;     
+    position: absolute;
+    width: 20px;
+    background-size: 20px 20px;
+    height: 20px;
+    background-image: url("images/player.jpg");
 }
 
 .potion {
-    fill: tan;
-    stroke-width: 1px;
-    stroke: #FF6600;
+    position: absolute;
+    width: 20px;
+    background-size: 20px 20px;
+    height: 20px;
+    background-image: url("images/potion.jpg");
 }
 
+.current_tool {
+    font-weight:bold;
+}
+
+td {
+    width: 80px;
+    border-style: solid;
+    border-width: 5px;
+}
