@@ -79,7 +79,7 @@ def create_world():
             screen['X']=X
             screen['Y']=Y
             screen['users']=[]
-            screen['structures'] = []
+            screen['structures']
             if world.find({'X':X,'Y':Y}).count():
                 sys.stderr.write("screen in this position already exists.")
                 continue
