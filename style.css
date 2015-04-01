@@ -23,26 +23,29 @@ body {
     height: 20px;
     background-image: url("images/rock.jpg");
 }
-.structure{
-    fill: brown;
-    stroke-width: 1px;
-    stroke: #c7c7c7;
+.structure {
+    position: absolute;
+    width: 20px;
+    background-size: 20px 20px;
+    height: 20px;
+    background-image: url("images/structure.jpg");
 }
 
+.red_lava {
+    position: absolute;
+    width: 20px;
+    background-size: 20px 20px;
+    height: 20px;
+    background-image: url("images/redlava.jpg");
+}
 
 .blue_lava {
-    fill: blue;
-    fill-opacity: .5;
-    stroke-width: 1px;
-    stroke: #c7c7c7;
+    position: absolute;
+    width: 20px;
+    background-size: 20px 20px;
+    height: 20px;
+    background-image: url("images/bluelava.jpg");
 }
-.red_lava {
-    fill: red;
-    fill-opacity: .5;
-    stroke-width: 1px;
-    stroke: #c7c7c7;
-}
-
 .mine {
     position: absolute;
     width: 20px;

@@ -161,7 +161,6 @@ $(function() {
     function completeMap(gridSize,terrain,users, player_x, player_y){
 	//, current_player){
         var map = { grid:[], grass:[], rock:[], structure:[], blue_lava:[], red_lava:[], potion:[],person:[],player:[], mine:[]};
-        var map = { grid:[], grass:[], rock:[], potion:[],person:[],player:[], mine:[]};
         for (var x =0 ; x<gridSize.x;x++){
             map.grid[x]=[];
         } 
@@ -183,7 +182,7 @@ $(function() {
 	//if (users[i] == currentPlayer){
         if ((x_pos == player_x) && (y_pos == player_y)){
 		cell ={x:x_pos,y:y_pos,type:"player"}; 
-                console.log("map.grid: ",map.grid);
+                //console.log("map.grid: ",map.grid);
                 map.grid[x_pos][y_pos]=cell;
                 map["player"].push(cell);
             }else{
