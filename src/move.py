@@ -12,27 +12,6 @@ def can_move(user,move):
     new_pos = new_user_coord(user,move)
     return tile_is_walkable(new_pos)
 
-@route("/move", method="POST")
-def move():
-    user,user_id, screen = get_user_info()
-    user["shield"] = False
-    dir = bottle.request.json["action"]
-    #if move in AXES:
-    pos = new_user_coord(user, move)
-    if can_move(user,dir):
-        if lava_at(pos, user['team']):
-            print "lava!"
-            users.update({'_id':user['_id']}, {"$inc" : {"health": -50}})
-            #user,user_id, screen = get_user_info()
-            if user['health'] -50 <= 0:
-                respawn(user)
-            else:
-                update_position(user,dir)
-    else:
-        users.update({"_id":user_id},{"$inc":{'health':-1}})
-        users.update({"_id":user_id},{"$set":{'sound':"damage"}})
-        print "invalid move"
-
 # updates the users position as well as score and sound if as necessary
 def update_position(user,move):
     screen= get_screen(user)
