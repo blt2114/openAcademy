@@ -11,14 +11,21 @@ from carry import *
 from move import *
 from screen_info import *
 
+SCREEN_LEN = 25 #number of spaces per row and column
+WORLD_LEN = 10 #number of screens per row and column of the world
+TOOLS = {1: "pickup", 2: "bow", 3: "mine"}
+INITIAL_HEALTH = 100
+INITIAL_SCORE = 0
+INITIAL_MINES = 5
+INITIAL_ARROWS = 5
+#TODO:Brian MAX_HEALTH/ARROWS/MINES
+
+
 
 if len(sys.argv) is not 2:
     print "please provide webroot as argument: python main.py <web_root>"
     sys.exit(2)
 web_root=sys.argv[1]
-SCREEN_LEN = 25 #number of spaces per row and column
-WORLD_LEN = 10 #number of screens per row and column of the world
-TOOLS = {1: "pickup", 2: "bow", 3: "mine"}
 
 def generate_tiles():
     #generate tiles in random positions in SCREEN_LENXSCREEN_LEN  grid.  1/6 of positions
@@ -42,14 +49,14 @@ def create_user():
     user = {'X':1,'Y':1,'x': randint(1,20), 'y':randint(1,20)}
     while not tile_is_empty(user):
         user = {'X':1,'Y':1,'x': randint(1,20), 'y':randint(1,20)}
-    user["health"]=100
-    user["score"]=0
+    user["health"]= INITIAL_HEALTH
+    user["score"]= INITIAL_SCORE
     user['carrying'] = 0
-    user["tools"] = [1,2]
+    user["tools"] = [1,2] #Tools that the user can initially use
     user["current_tool"] = 1
-    user["arrows"] = 5
+    user["arrows"] = INITIAL_ARROWS
     user["shield"] = False
-    user["mines"] = 5
+    user["mines"] = INITIAL_MINES
     users.insert(user)
     return user
 
@@ -82,7 +89,6 @@ def move():
 
 @bottle.get("/load_screen")
 def load_screen():
-    screen1 = {}
     if (world.count()==0):
         create_world()
     user_id=None
@@ -91,9 +97,7 @@ def load_screen():
     if user_id_str:
         user_id = ObjectId(user_id_str)
         current_user=find_user(user_id)
-        if current_user is None:
-            print "user with id "+str(user_id)+" not found, creating new"
-            "user"
+
     #if either the cookie does not exist or the user is not found
     if current_user is None:
         current_user = create_user()
@@ -145,8 +149,6 @@ def act():
             lay_mine(user)
         else:
             print "invalid mine"
-    else:
-        return
 
 def can_switch(user):
     return not(carrying_tile(user))
@@ -161,7 +163,6 @@ def switch():
 @bottle.get('/<filename>')
 def serve_index(filename):
     return bottle.static_file(filename, root=web_root)
-
 
 bottle.debug(True)
 bottle.run(host='localhost', port=8080)

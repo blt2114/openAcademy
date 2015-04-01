@@ -1,5 +1,5 @@
 body {
-    background-color: #EEEEEE;
+/*    background-color: #EEEEEE;*/
 }
 
 .svg {
@@ -9,37 +9,52 @@ body {
 
 /**TEXTURES FOR DISPLAY**/
 .grass {
-    fill: #3CAB26;
-    stroke-width: 1px;
-    stroke: #2D801C;
+    position: absolute;
+    width: 20px;
+    background-size: 20px 20px;
+    height: 20px;
+    background-image: url("http://4.bp.blogspot.com/-ycCs5hTJR40/UagczIwVG7I/AAAAAAAABI4/8xfmnajUD24/s1600/strands-green-grass-free-clip-art-15-715266.jpg");
 }
 
 .rock {
-    fill: #858585;
-    stroke-width: 1px;
-    stroke: #C7C7C7;
+    position: absolute;
+    width: 20px;
+    background-size: 20px 20px;
+    height: 20px;
+    background-image: url("http://static3.grsites.com/archive/textures/rock/rock071.jpg");
+}
+.mine {
+    position: absolute;
+    width: 20px;
+    background-size: 20px 20px;
+    height: 20px;
+    background-image: url("http://images.clipartpanda.com/landmine-clipart-1230571109126653456rg1024_cartoon_sea_mine.svg.med.png");
 }
 
-.mine {
-    fill: yellow;
-    stroke-width: 1px;
-    stroke: #ff6600;
-}
 .person {
-    fill:red; 
-    stroke-width: 3px;
-    stroke: #2973F2;
+    position: absolute;
+    width: 20px;
+    background-size: 20px 20px;
+    height: 20px;
+    background-image: url("http://www.fws.gov/fieldnotes/popup.html?/arsnew/photos/Riaz%20Helfer%20resize.JPG");
 }
 
 .player {
-    fill:black;
-    stroke-width: 3px;
-    stroke:#2973F2     
+    position: absolute;
+    width: 20px;
+    background-size: 20px 20px;
+    height: 20px;
+    background-image: url("http://phase2coaching.com/wp-content/plugins/ts-visual-composer-extend/images/defaults/default_person.jpg");
 }
 
 .potion {
-    fill: #B3210B;
-    stroke-width: 1px;
-    stroke: #FF6600;
+    position: absolute;
+    width: 20px;
+    background-size: 20px 20px;
+    height: 20px;
+    background-image: url("http://img1.wikia.nocookie.net/__cb20130221134729/book-of-heroes/images/3/34/Cleansing_Potion.jpg");
 }
 
+.current_tool {
+    font-weight:bold;
+}

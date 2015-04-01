@@ -4,7 +4,6 @@ $(function() {
     var scoreSound = new Audio('score.mp3');
     var potionSound = new Audio('potion.mp3');
     var gridSize = { x:SCREEN_LEN, y:SCREEN_LEN };
-    var current_tool = 1
     // Draws the terrain and people  onto the map
     window.onkeydown = function move(keyEvent) {
         var squareLength = 20;
@@ -14,19 +13,19 @@ $(function() {
 	var action_type = ""
 //MOVE KEYS
         if (keyEvent.keyCode == 37) {
-            action = "left";
-	    action_type = "move"
-        }
-        else if (keyEvent.keyCode == 38) {
             action = "up";
 	    action_type = "move"
         }
+        else if (keyEvent.keyCode == 38) {
+            action = "left";
+	    action_type = "move"
+        }
         else if (keyEvent.keyCode == 39) {
-	    action = "right";
+	    action = "down";
 	    action_type = "move"
         }
         else if (keyEvent.keyCode == 40) {
-            action = "down";
+            action = "right";
 	    action_type = "move"
         }
         // To drop a tile, press a
@@ -83,9 +82,9 @@ $(function() {
         getMap();
     }
     function drawMap(map){
-        $("svg").remove();
+        $("span").html("");
         var svgContainer = d3.select(".display")
-            .append("svg")
+            .append("span")
             .attr("width", svgSize.width)
             .attr("height", svgSize.height);
         var scales = getScale(gridSize, svgSize);
@@ -135,18 +134,12 @@ $(function() {
         //Use JQuery to make an AJAX request for the JSON screen object
         $.getJSON('load_screen', function(data) { 
             screen_data=data["screen"];
-
-	    //console.log("print line 167");
             player_data = data["player"];
 	    updatePlayerInfo(player_data);
 	    player_x = player_data["x"];
 	    player_y = player_data["y"];
             var map = completeMap(gridSize,screen_data["tiles"],screen_data["users"],player_x,player_y);
             drawMap(map);
-
-	    //print player_data
-            
-
             sound = data["sound"];
             playSound(sound);
         })
@@ -154,7 +147,6 @@ $(function() {
 
     // Construct the map obj using the terrain and users arrays
     function completeMap(gridSize,terrain,users, player_x, player_y){
-	//, current_player){
         var map = { grid:[], grass:[], rock:[], potion:[],person:[],player:[], mine:[]};
         for (var x =0 ; x<gridSize.x;x++){
             map.grid[x]=[];
@@ -203,7 +195,6 @@ $(function() {
                     map[type].push(cell);
                 }
             }
-
         }
         return map;
     }
@@ -223,31 +214,41 @@ $(function() {
 	arrows.innerHTML = playerData["arrows"];
 	var mines = document.getElementById("mines");
 	mines.innerHTML = playerData["mines"];
-	TOOLS = {1:"PICKUP", 2:"BOW", 3:"MINES"}
-	var current_tool = document.getElementById("current_tool");
-	current_tool.innerHTML = TOOLS[playerData["current_tool"]];
+	TOOLS = {1:"pickup", 2:"bow", 3:"mine"}
+        $("#"+TOOLS[playerData["current_tool"]]).addClass("current_tool");
+
+        var last_tool= $("#current_tool").html();
+        if (last_tool === TOOLS[playerData["current_tool"]]){
+                return;
+        } 
+        $("#"+last_tool).removeClass("current_tool");
+        $("#current_tool").html(TOOLS[playerData["current_tool"]])
+        $("#"+TOOLS[playerData["current_tool"]]).addClass("current_tool");
     }
 
     function drawCells(svgContainer, scales, data, cssClass) {
-        var gridGroup = svgContainer.append("g");
-        var cells = gridGroup.selectAll("rect")
+        var gridGroup = svgContainer.append("div");
+        var cells = gridGroup.selectAll("div")
             .data(data)
             .enter()
-            .append("rect");
+            .append("div");
         var cellAttributes = cells
             .attr("x", function (d) { return scales.x(d.x); })
             .attr("y", function (d) { return scales.y(d.y); })
             .attr("width", function (d) { return squareLength; })
             .attr("height", function (d) { return squareLength; })
+            .attr("style",function(d){return "top: "+( 50 +Number(scales.x(d.x)))+"px;left: "+ (50 + scales.y(d.y))+"px";}) 
             .attr("class", cssClass);
+             
     }
     var squareLength = 20;
     var gridSize = { x:SCREEN_LEN, y:SCREEN_LEN };
 
     var svgSize = getSvgSize(gridSize, squareLength);
+	//if (users[i] == currentPlayer){
     getMap();
     window.setInterval(function(){
         getMap();
-    },500);
+    },5000000);
 }
 );
