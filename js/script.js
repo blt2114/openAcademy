@@ -1,8 +1,8 @@
 $(function() {
     var SCREEN_LEN=25;
-    var damageSound = new Audio('smash.mp3');
-    var scoreSound = new Audio('score.mp3');
-    var potionSound = new Audio('potion.mp3');
+    var damageSound = new Audio('sounds/smash.mp3');
+    var scoreSound = new Audio('sounds/score.mp3');
+    var potionSound = new Audio('sounds/potion.mp3');
     var gridSize = { x:SCREEN_LEN, y:SCREEN_LEN };
     // Draws the terrain and people  onto the map
     window.onkeydown = function move(keyEvent) {
@@ -13,19 +13,19 @@ $(function() {
 	var action_type = ""
 //MOVE KEYS
         if (keyEvent.keyCode == 37) {
-            action = "up";
-	    action_type = "move"
-        }
-        else if (keyEvent.keyCode == 38) {
             action = "left";
 	    action_type = "move"
         }
+        else if (keyEvent.keyCode == 38) {
+            action = "up";
+	    action_type = "move"
+        }
         else if (keyEvent.keyCode == 39) {
-	    action = "down";
+	    action = "right";
 	    action_type = "move"
         }
         else if (keyEvent.keyCode == 40) {
-            action = "right";
+            action = "down";
 	    action_type = "move"
         }
         // To drop a tile, press a
@@ -72,6 +72,7 @@ $(function() {
 	    action = "3";
 	    action_type = "switch"
 	}
+        if (action != ""){ 
 	    $.ajax({
 		type: "POST",
 		url: "/"+action_type,
@@ -80,6 +81,7 @@ $(function() {
 		dataType: "json",
 	    });
         getMap();
+        }
     }
     function drawMap(map){
         $("span").html("");
@@ -237,7 +239,7 @@ $(function() {
             .attr("y", function (d) { return scales.y(d.y); })
             .attr("width", function (d) { return squareLength; })
             .attr("height", function (d) { return squareLength; })
-            .attr("style",function(d){return "top: "+( 50 +Number(scales.x(d.x)))+"px;left: "+ (50 + scales.y(d.y))+"px";}) 
+            .attr("style",function(d){return "top: "+( 50 +Number(scales.y(d.y)))+"px;left: "+ (50 + scales.x(d.x))+"px";}) 
             .attr("class", cssClass);
              
     }
@@ -245,10 +247,11 @@ $(function() {
     var gridSize = { x:SCREEN_LEN, y:SCREEN_LEN };
 
     var svgSize = getSvgSize(gridSize, squareLength);
-	//if (users[i] == currentPlayer){
     getMap();
     window.setInterval(function(){
-        getMap();
-    },5000000);
+        if (document.cookie.indexOf("user_id")>-1){
+                getMap();
+        }
+    },500);
 }
 );

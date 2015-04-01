@@ -160,7 +160,7 @@ def switch():
         tool = int(bottle.request.json["action"])
         users.update({"_id": user_id}, {'$set': {"current_tool": tool}})
 
-@bottle.get('/<filename>')
+@bottle.get('/<filename:path>')
 def serve_index(filename):
     return bottle.static_file(filename, root=web_root)
 
