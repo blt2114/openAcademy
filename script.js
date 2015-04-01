@@ -72,6 +72,7 @@ $(function() {
 	    action = "3";
 	    action_type = "switch"
 	}
+        if 
 	    $.ajax({
 		type: "POST",
 		url: "/"+action_type,
@@ -245,10 +246,11 @@ $(function() {
     var gridSize = { x:SCREEN_LEN, y:SCREEN_LEN };
 
     var svgSize = getSvgSize(gridSize, squareLength);
-	//if (users[i] == currentPlayer){
     getMap();
     window.setInterval(function(){
-        getMap();
-    },5000000);
+        if (document.cookie.indexOf("user_id")>-1){
+                getMap();
+        }
+    },500);
 }
 );
