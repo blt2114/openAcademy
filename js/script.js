@@ -271,6 +271,6 @@ $(function() {
         if (document.cookie.indexOf("user_id")>-1){
                 getMap();
         }
-    },50000);
+    },500);
 }
 );
