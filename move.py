@@ -19,6 +19,7 @@ def move():
     dir = bottle.request.json["action"]
     #if move in AXES:
     if can_move(user,dir):
+         
         update_position(user,dir)
     else:
         users.update({"_id":user_id},{"$inc":{'health':-1}})

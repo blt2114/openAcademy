@@ -73,6 +73,12 @@ $(function() {
 	    action = "3";
 	    action_type = "switch"
 	}
+	
+	else if (keyEvent.keyCode == 52){
+	    action = "4";
+	    action_type = "switch"
+	}
+
 	    $.ajax({
 		type: "POST",
 		url: "/"+action_type,
@@ -92,6 +98,9 @@ $(function() {
 
         drawCells(svgContainer, scales, map.grass, "grass");
         drawCells(svgContainer, scales, map.rock, "rock");
+	drawCells(svgContainer, scales, map.structure, "structure");
+	drawCells(svgContainer, scales, map.blue_lava, "blue_lava");
+	drawCells(svgContainer, scales, map.red_lava, "red_lava");
         drawCells(svgContainer, scales, map.potion, "potion");
         drawCells(svgContainer, scales, map.person, "person");
         drawCells(svgContainer, scales, map.player, "player");//  the current player
@@ -155,7 +164,7 @@ $(function() {
     // Construct the map obj using the terrain and users arrays
     function completeMap(gridSize,terrain,users, player_x, player_y){
 	//, current_player){
-        var map = { grid:[], grass:[], rock:[], potion:[],person:[],player:[], mine:[]};
+        var map = { grid:[], grass:[], rock:[], structure:[], blue_lava:[], red_lava:[], potion:[],person:[],player:[], mine:[]};
         for (var x =0 ; x<gridSize.x;x++){
             map.grid[x]=[];
         } 
@@ -223,7 +232,7 @@ $(function() {
 	arrows.innerHTML = playerData["arrows"];
 	var mines = document.getElementById("mines");
 	mines.innerHTML = playerData["mines"];
-	TOOLS = {1:"PICKUP", 2:"BOW", 3:"MINES"}
+	TOOLS = {1:"PICKUP", 2:"BOW", 3:"MINES", 4: "BUILD"}
 	var current_tool = document.getElementById("current_tool");
 	current_tool.innerHTML = TOOLS[playerData["current_tool"]];
     }

@@ -9,6 +9,7 @@ from arrow import *
 from mine import *
 from carry import *
 from move import *
+from build import *
 from screen_info import *
 
 
@@ -18,7 +19,7 @@ if len(sys.argv) is not 2:
 web_root=sys.argv[1]
 SCREEN_LEN = 25 #number of spaces per row and column
 WORLD_LEN = 10 #number of screens per row and column of the world
-TOOLS = {1: "pickup", 2: "bow", 3: "mine"}
+TOOLS = {1: "pickup", 2: "bow", 3: "mine", 4: "build"}
 
 def generate_tiles():
     #generate tiles in random positions in SCREEN_LENXSCREEN_LEN  grid.  1/6 of positions
@@ -36,12 +37,23 @@ def generate_tiles():
 client=MongoClient()
 world=client.game.world
 users=client.game.users
-
+structures=client.game.structures
+RED = {'X': 1, 'Y': 1}
+BLUE = {'X':3, 'Y': 1}
 def create_user():
     print "creating user"
-    user = {'X':1,'Y':1,'x': randint(1,20), 'y':randint(1,20)}
+    red_users = users.find({"team":"red"}).count()
+    blue_users = users.find({"team":"blue"}).count()
+    color = RED
+    if red_users > blue_users:
+        color = BLUE
+    user = {'X':color['X'],'Y':color['Y'],'x': randint(1,20), 'y':randint(1,20)}
     while not tile_is_empty(user):
-        user = {'X':1,'Y':1,'x': randint(1,20), 'y':randint(1,20)}
+        user = {'X':color['X'],'Y':color['Y'],'x': randint(1,20), 'y':randint(1,20)}
+    if color == RED:
+        user['team'] = 'red'
+    else:
+        user['team'] = 'blue'
     user["health"]=100
     user["score"]=0
     user['carrying'] = 0
@@ -50,6 +62,7 @@ def create_user():
     user["arrows"] = 5
     user["shield"] = False
     user["mines"] = 5
+
     users.insert(user)
     return user
 
@@ -145,6 +158,11 @@ def act():
             lay_mine(user)
         else:
             print "invalid mine"
+    elif tool == "build":
+        if can_build(user,dir):
+            build(user, dir)
+        else:
+            print "invalid build"
     else:
         return
 

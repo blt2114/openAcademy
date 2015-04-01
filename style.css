@@ -19,6 +19,25 @@ body {
     stroke-width: 1px;
     stroke: #C7C7C7;
 }
+.structure{
+    fill: brown;
+    stroke-width: 1px;
+    stroke: #c7c7c7;
+}
+
+
+.blue_lava {
+    fill: blue;
+    fill-opacity: .5;
+    stroke-width: 1px;
+    stroke: #c7c7c7;
+}
+.red_lava {
+    fill: red;
+    fill-opacity: .5;
+    stroke-width: 1px;
+    stroke: #c7c7c7;
+}
 
 .mine {
     fill: yellow;
@@ -26,19 +45,19 @@ body {
     stroke: #ff6600;
 }
 .person {
-    fill:red; 
+    fill: white; 
     stroke-width: 3px;
     stroke: #2973F2;
 }
 
 .player {
-    fill:black;
+    fill: black;
     stroke-width: 3px;
-    stroke:#2973F2     
+    stroke:#2973F2;     
 }
 
 .potion {
-    fill: #B3210B;
+    fill: tan;
     stroke-width: 1px;
     stroke: #FF6600;
 }
