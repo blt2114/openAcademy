@@ -52,6 +52,7 @@ def update_position(user,move):
         new_screen['users'].append(user)
         world.update({"_id":new_screen['_id']},{"$set":new_screen})
     users.update({"_id": user["_id"]}, {"$set" : user})
+    users.update({"_id":user['_id']},{"$set":{'sound':"score"}})
     if potion_at(new_pos):
         if user['health'] < 100:
             users.update({"_id":user['_id']},{"$inc":{'health':+1}})
@@ -60,13 +61,12 @@ def update_position(user,move):
     if mine_at(new_pos):
         users.update({"_id": user['_id']},{"$inc":{'health':-50}})    
         #add sound effect here
+        users.update({"_id":user['_id']},{"$set":{'sound':"mine"}})
         world.update({"_id":screen['_id']},{"$pull":{"tiles":{"type":'mine',"x":new_pos['x'],"y":new_pos['y']}}})
     if user["health"] <= 0:
         respawn(user)
-
     else:
         users.update({"_id":user['_id']},{"$inc":{'score':+1}})
-        users.update({"_id":user['_id']},{"$set":{'sound':"score"}})
     #world.update({"users":{"$elemMatch":{"_id":uid}}},{"$inc":{'users.$.'+AXES[move]:DIRECTIONS[move]}})
 
 

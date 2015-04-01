@@ -1,6 +1,7 @@
 $(function() {
     var SCREEN_LEN=25;
     var damageSound = new Audio('sounds/smash.mp3');
+    var mineSound = new Audio('sounds/mine.mp3');
     var scoreSound = new Audio('sounds/score.mp3');
     var potionSound = new Audio('sounds/potion.mp3');
     var gridSize = { x:SCREEN_LEN, y:SCREEN_LEN };
@@ -121,6 +122,9 @@ $(function() {
         if (sound == "damage"){
             soundObj = damageSound;
         }
+        if (sound == "mine"){
+            soundObj= mineSound;
+        }
         if (soundObj!=null){
             soundObj.pause();
             soundObj.currentTime=0;
@@ -142,6 +146,7 @@ $(function() {
 	    player_y = player_data["y"];
             var map = completeMap(gridSize,screen_data["tiles"],screen_data["users"],player_x,player_y);
             drawMap(map);
+            console.log("sound is "+data["sound"]);
             sound = data["sound"];
             playSound(sound);
         })
@@ -252,6 +257,6 @@ $(function() {
         if (document.cookie.indexOf("user_id")>-1){
                 getMap();
         }
-    },500);
+    },50000);
 }
 );
