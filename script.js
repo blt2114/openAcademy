@@ -13,19 +13,19 @@ $(function() {
 	var action_type = ""
 //MOVE KEYS
         if (keyEvent.keyCode == 37) {
-            action = "up";
-	    action_type = "move"
-        }
-        else if (keyEvent.keyCode == 38) {
             action = "left";
 	    action_type = "move"
         }
+        else if (keyEvent.keyCode == 38) {
+            action = "up";
+	    action_type = "move"
+        }
         else if (keyEvent.keyCode == 39) {
-	    action = "down";
+	    action = "right";
 	    action_type = "move"
         }
         else if (keyEvent.keyCode == 40) {
-            action = "right";
+            action = "down";
 	    action_type = "move"
         }
         // To drop a tile, press a
@@ -239,7 +239,7 @@ $(function() {
             .attr("y", function (d) { return scales.y(d.y); })
             .attr("width", function (d) { return squareLength; })
             .attr("height", function (d) { return squareLength; })
-            .attr("style",function(d){return "top: "+( 50 +Number(scales.x(d.x)))+"px;left: "+ (50 + scales.y(d.y))+"px";}) 
+            .attr("style",function(d){return "top: "+( 50 +Number(scales.y(d.y)))+"px;left: "+ (50 + scales.x(d.x))+"px";}) 
             .attr("class", cssClass);
              
     }
