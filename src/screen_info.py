@@ -26,6 +26,7 @@ def get_screen(user):
         sys.stderr.write("No screen in found in current position")
         return None
     return cur[0]
+
 def potion_at(pos):
     screen = get_screen(pos)
     screen = world.find({"X":pos["X"],"Y":pos["Y"]})
