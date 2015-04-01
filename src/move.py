@@ -18,8 +18,16 @@ def move():
     user["shield"] = False
     dir = bottle.request.json["action"]
     #if move in AXES:
+    pos = new_user_coord(user, move)
     if can_move(user,dir):
-        update_position(user,dir)
+        if lava_at(pos, user['team']):
+            print "lava!"
+            users.update({'_id':user['_id']}, {"$inc" : {"health": -50}})
+            #user,user_id, screen = get_user_info()
+            if user['health'] -50 <= 0:
+                respawn(user)
+            else:
+                update_position(user,dir)
     else:
         users.update({"_id":user_id},{"$inc":{'health':-1}})
         users.update({"_id":user_id},{"$set":{'sound':"damage"}})

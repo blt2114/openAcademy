@@ -8,11 +8,16 @@ from bson.objectid import ObjectId
 from screen_info import *
 
 RED = {"X": 1, "Y": 1}
+BLUE = {"X":3, "Y":1}
 def respawn(user):
     screen = get_screen(user)
-    user = {'_id': user["_id"], 'X': RED, 'Y': RED, 'x': randint(1,20), 'y': randint(1,20)}
+    if user['team'] == 'red':
+        color = RED
+    else:
+        color = BLUE
+    user = {'_id': user["_id"], 'X': color['X'], 'Y': color['Y'], 'team':user['team'], 'x': randint(1,20), 'y': randint(1,20)}
     while not tile_is_empty(user):
-        user = {'_id': user["_id"], 'X': RED['X'], 'Y': RED['Y'], 'x': randint(1,20), 'y': randint(1,20)}
+        user = {'_id': user["_id"], 'X': color['X'], 'Y': color['Y'], 'team':user['team'], 'x': randint(1,20), 'y': randint(1,20)}
     
     user["health"]=100
     user["score"]=0

@@ -9,11 +9,12 @@ from arrow import *
 from mine import *
 from carry import *
 from move import *
+from build import *
 from screen_info import *
 
 SCREEN_LEN = 25 #number of spaces per row and column
 WORLD_LEN = 10 #number of screens per row and column of the world
-TOOLS = {1: "pickup", 2: "bow", 3: "mine"}
+TOOLS = {1: "pickup", 2: "bow", 3: "mine", 4: "build"}
 INITIAL_HEALTH = 100
 INITIAL_SCORE = 0
 INITIAL_MINES = 5
@@ -43,16 +44,26 @@ def generate_tiles():
 client=MongoClient()
 world=client.game.world
 users=client.game.users
-
+RED = {'X': 1, 'Y': 1}
+BLUE = {'X':3, 'Y': 1}
 def create_user():
     print "creating user"
-    user = {'X':1,'Y':1,'x': randint(1,20), 'y':randint(1,20)}
+    red_users = users.find({"team":"red"}).count()
+    blue_users = users.find({"team":"blue"}).count()
+    color = RED
+    if red_users > blue_users:
+        color = BLUE
+    user = {'X':color['X'],'Y':color['Y'],'x': randint(1,20), 'y':randint(1,20)}
     while not tile_is_empty(user):
-        user = {'X':1,'Y':1,'x': randint(1,20), 'y':randint(1,20)}
+        user = {'X':color['X'],'Y':color['Y'],'x': randint(1,20), 'y':randint(1,20)}
+    if color == RED:
+        user['team'] = 'red'
+    else:
+        user['team'] = 'blue'
     user["health"]= INITIAL_HEALTH
     user["score"]= INITIAL_SCORE
     user['carrying'] = 0
-    user["tools"] = [1,2] #Tools that the user can initially use
+    user["tools"] = [1,2,3,4] #Tools that the user can initially use
     user["current_tool"] = 1
     user["arrows"] = INITIAL_ARROWS
     user["shield"] = False
@@ -68,6 +79,7 @@ def create_world():
             screen['X']=X
             screen['Y']=Y
             screen['users']=[]
+            screen['structures']
             if world.find({'X':X,'Y':Y}).count():
                 sys.stderr.write("screen in this position already exists.")
                 continue
@@ -149,6 +161,13 @@ def act():
             lay_mine(user)
         else:
             print "invalid mine"
+    elif tool == "build":
+        if can_build(user,dir):
+            build(user, dir)
+        else:
+            print "invalid build"
+    else:
+        return
 
 def can_switch(user):
     return not(carrying_tile(user))

@@ -23,6 +23,29 @@ body {
     height: 20px;
     background-image: url("images/rock.jpg");
 }
+.structure {
+    position: absolute;
+    width: 20px;
+    background-size: 20px 20px;
+    height: 20px;
+    background-image: url("images/structure.jpg");
+}
+
+.red_lava {
+    position: absolute;
+    width: 20px;
+    background-size: 20px 20px;
+    height: 20px;
+    background-image: url("images/redlava.jpg");
+}
+
+.blue_lava {
+    position: absolute;
+    width: 20px;
+    background-size: 20px 20px;
+    height: 20px;
+    background-image: url("images/bluelava.jpg");
+}
 .mine {
     position: absolute;
     width: 20px;
