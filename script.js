@@ -215,9 +215,9 @@ $(function() {
 	var mines = document.getElementById("mines");
 	mines.innerHTML = playerData["mines"];
 	TOOLS = {1:"pickup", 2:"bow", 3:"mine"}
+        var last_tool= $(".current_tool").attr("id");
         $("#"+TOOLS[playerData["current_tool"]]).addClass("current_tool");
 
-        var last_tool= $("#current_tool").html();
         if (last_tool === TOOLS[playerData["current_tool"]]){
                 return;
         } 
