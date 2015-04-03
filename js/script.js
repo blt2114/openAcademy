@@ -236,14 +236,14 @@ $(function() {
 	screenX.innerHTML = playerData["X"];
 	var screenY = document.getElementById("screenY");
 	screenY.innerHTML = playerData["Y"];
-	TOOLS = {1:"PICKUP", 2:"BOW", 3:"MINES", 4: "BUILD"};
+	TOOLS = {1: "pickup", 2: "bow", 3: "mine", 4: "build"};
         var last_tool= $(".current_tool").attr("id");
         $("#"+TOOLS[playerData["current_tool"]]).addClass("current_tool");
         if (last_tool === TOOLS[playerData["current_tool"]]){
                 return;
         } 
         $("#"+last_tool).removeClass("current_tool");
-        $("#current_tool").html(TOOLS[playerData["current_tool"]])
+        $("#current_tool").html(TOOLS[playerData["current_tool"]]);
         $("#"+TOOLS[playerData["current_tool"]]).addClass("current_tool");
     }
 
