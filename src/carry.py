@@ -6,7 +6,6 @@ from bottle import route, run, template, request, response
 from bson.objectid import ObjectId
 from screen_info import *
 
-
 #return whether or not a tile can be placed at the location of a user
 def can_place_tile(user):
     user_pos = get_tile_coord(user,"nowhere", 0)
@@ -21,7 +20,6 @@ def can_pickup(user,dir):
     if terrain_at(pickup_pos) and not(carrying_tile(user)):
         return True
     return False
-
 
 def carrying_tile(user):
     return user.has_key("carrying") and user["carrying"] != 0
