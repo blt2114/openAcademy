@@ -7,8 +7,8 @@ from bottle import route, run, template, request, response
 from bson.objectid import ObjectId
 from screen_info import *
 
-RED = {"X": 1, "Y": 1}
-BLUE = {"X":3, "Y":1}
+RED = {"X": 0, "Y": 1}
+BLUE = {"X":2, "Y":1}
 def respawn(user):
     screen = get_screen(user)
     if user['team'] == 'red':

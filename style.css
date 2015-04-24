@@ -31,6 +31,20 @@ body {
     background-image: url("images/structure.jpg");
 }
 
+.blue_base {
+    position: absolute;
+    width: 20px;
+    background-size: 20px 20px;
+    height: 20px;
+    background-image: url("images/bluebase.jpg");
+}
+.red_base {
+    position: absolute;
+    width: 20px;
+    background-size: 20px 20px;
+    height: 20px;
+    background-image: url("images/redbase.png");
+}
 .red_lava {
     position: absolute;
     width: 20px;

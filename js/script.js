@@ -102,6 +102,8 @@ $(function() {
         drawCells(svgContainer, scales, map.grass, "grass");
         drawCells(svgContainer, scales, map.rock, "rock");
 	drawCells(svgContainer, scales, map.structure, "structure");
+	drawCells(svgContainer, scales, map.blue_base, "blue_base");
+	drawCells(svgContainer, scales, map.red_base, "red_base");
 	drawCells(svgContainer, scales, map.blue_lava, "blue_lava");
 	drawCells(svgContainer, scales, map.red_lava, "red_lava");
         drawCells(svgContainer, scales, map.potion, "potion");
@@ -112,7 +114,6 @@ $(function() {
             position:svgContainer.append("g") };
 
         $('#commands').focus();
-
     }
 
     function getSvgSize(gridSize, squareLength) {
@@ -165,7 +166,7 @@ $(function() {
     // Construct the map obj using the terrain and users arrays
     function completeMap(gridSize,terrain,users, player_x, player_y){
 	//, current_player){
-        var map = { grid:[], grass:[], rock:[], structure:[], blue_lava:[], red_lava:[], potion:[],person:[],player:[], mine:[]};
+        var map = { grid:[], grass:[], rock:[], structure:[], blue_base:[], red_base:[], blue_lava:[], red_lava:[], potion:[],person:[],player:[], mine:[]};
         for (var x =0 ; x<gridSize.x;x++){
             map.grid[x]=[];
         } 
