@@ -30,4 +30,4 @@ def respawn(user):
     #blowup animation
     users.update({"_id":user['_id']},{"$set": user})
     world.update({"_id":screen['_id']},{"$pull":{"users":{"_id": user["_id"]}}})
-    world.update({"X":RED["X"],"Y":RED["Y"]},{"$push":{"users":user}})
+    world.update({"X":color["X"],"Y":color["Y"]},{"$push":{"users":user}})

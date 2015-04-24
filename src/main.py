@@ -81,6 +81,7 @@ def create_user():
     user["arrows"] = INITIAL_ARROWS
     user["shield"] = False
     user["mines"] = INITIAL_MINES
+    user['primed'] = False
     users.insert(user)
     return user
 
@@ -183,7 +184,10 @@ def act():
             print "invalid_shoot"
     elif tool == "mine":
         if can_lay_mine(user, dir):
-            lay_mine(user)
+            if not user['primed']:
+                lay_mine(user)
+            else:
+                det_mine(user)
         else:
             print "invalid mine"
     elif tool == "build":

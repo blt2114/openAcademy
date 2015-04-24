@@ -54,9 +54,10 @@ def mine_at(pos):
     screen = get_screen(pos)
     screen = world.find({"X":pos["X"],"Y":pos["Y"]})
     if not screen.count():
-        return True 
+        return False 
     tile = world.find({"X":pos["X"],"Y":pos["Y"],"tiles":{"type":"mine","x":pos['x'],"y":pos['y']}})
     if tile.count():
+        print "WHOAA"
         return True
     return False
 # checks the if the position provided has a rock on it.
@@ -69,6 +70,9 @@ def terrain_at(pos):
     if tile.count():
         return True
     tile = world.find({"X":pos["X"],"Y":pos["Y"],"tiles":{"type":"red_base","x":pos['x'],"y":pos['y']}})
+    if tile.count():
+        return True
+    tile = world.find({"X":pos["X"],"Y":pos["Y"],"tiles":{"type":"blue_base","x":pos['x'],"y":pos['y']}})
     if tile.count():
         return True
     return False
