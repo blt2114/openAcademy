@@ -17,18 +17,77 @@ def can_move(user,move):
 def update_position(user,move):
     screen= get_screen(user)
     new_pos= new_user_coord(user,move)
-    user['y']=new_pos['y']
-    user['x']=new_pos['x']
+    
     #if playermove does not result in changing screens
     if ((new_pos['X']==user['X'] ) and (new_pos['Y']==user['Y'])):
+        '''
         for u in screen['users']:
             if u["_id"]==user["_id"]:
                 u['x']=new_pos['x']
                 u['y']=new_pos['y']
                 break
-        world.update({"_id":screen["_id"]},{"$set":{"users":screen["users"]}})
+        '''
+        user_new=user.copy()
+        user_new['x']=new_pos['x']
+        user_new['y']=new_pos['y']
+        write_result=world.update(
+            {
+                "_id":screen["_id"],
+                "tiles":{
+                    "$not":{
+                        "$elemMatch":{
+                            "x":user_new['x'],
+                            "y":user_new['y'],
+                            "type":"rock"
+                        }
+                    }
+                },
+                "users":{
+                    "$not":{
+                        "$elemMatch":{
+                            "x":user_new['x'],
+                            "y":user_new['y'],
+                        }
+                    }
+                },
+                "tiles":{
+                    "$not":{
+                        "$elemMatch":{
+                            "x":user_new['x'],
+                            "y":user_new['y'],
+                            "type":"rock"
+                            }
+                        }
+                    }
+            },{
+                "$push":{
+                    "users":user_new
+                }
+            },
+            False # no upserting
+        )
+        if not write_result["updatedExisting"]:
+            sys.stderr.write("update of user postion failed because tile"+
+            "not open\n")
+            return()
+        world.update(
+            {
+                "X":user['X'],
+                "Y":user["Y"]
+            },{
+                 "$pull":{
+                    "users":{
+                        'x':user['x'],
+                        'y':user['y']
+                    }
+                }
+            }
+        )
+        user=user_new
     #else if playermove causes player to move between screens
     else:
+        user['y']=new_pos['y']
+        user['x']=new_pos['x']
         user['Y']=new_pos['Y']
         user['X']=new_pos['X']
         for u in screen['users']:
@@ -71,5 +130,3 @@ def update_position(user,move):
     else:
         users.update({"_id":user['_id']},{"$inc":{'score':+1}})
     #world.update({"users":{"$elemMatch":{"_id":uid}}},{"$inc":{'users.$.'+AXES[move]:DIRECTIONS[move]}})
-
-
