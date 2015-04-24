@@ -51,6 +51,10 @@ def generate_tiles(base_color):
                     tiles.append({'type':"rock",'x':x,'y':y})
                 elif c == 5:
                     tiles.append({'type':"potion",'x':x,'y':y})
+                elif c == 4:
+                    tiles.append({'type':"p_arrow",'x':x,'y':y})
+                elif c == 3:
+                    tiles.append({'type':"p_mine",'x':x,'y':y})
     return tiles 
 
 # establish connection with game db

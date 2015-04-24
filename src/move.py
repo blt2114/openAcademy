@@ -47,6 +47,14 @@ def update_position(user,move):
             users.update({"_id":user['_id']},{"$inc":{'health':+1}})
         users.update({"_id":user['_id']},{"$set":{'sound':"potion"}})
         world.update({"_id":screen['_id']},{"$pull":{"tiles":{"type":'potion',"x":new_pos['x'],"y":new_pos['y']}}})
+    if p_arrow_at(new_pos):
+        if user['arrows'] < 10:
+            users.update({"_id":user['_id']},{"$inc":{'arrows':+1}})
+        world.update({"_id":screen['_id']},{"$pull":{"tiles":{"type":'p_arrow',"x":new_pos['x'],"y":new_pos['y']}}})
+    if p_mine_at(new_pos):
+        if user['mines'] < 10:
+            users.update({"_id":user['_id']},{"$inc":{'mines':+1}})
+        world.update({"_id":screen['_id']},{"$pull":{"tiles":{"type":'p_mine',"x":new_pos['x'],"y":new_pos['y']}}})
     if mine_at(new_pos):
         users.update({"_id": user['_id']},{"$inc":{'health':-100}})    
         #add sound effect here

@@ -111,6 +111,8 @@ $(function() {
         drawCells(svgContainer, scales, map.player, "player");//  the current player
 	drawCells(svgContainer, scales, map.mine, "mine");
 	drawCells(svgContainer, scales, map.targ, "targ");
+	drawCells(svgContainer, scales, map.p_arrow, "p_arrow");
+	drawCells(svgContainer, scales, map.p_mine, "p_mine");
 
         var groups = { path:svgContainer.append("g"),
             position:svgContainer.append("g") };
@@ -169,7 +171,7 @@ $(function() {
     // Construct the map obj using the terrain and users arrays
     function completeMap(gridSize,terrain,users, player_x, player_y, target){
 	//, current_player){
-        var map = { grid:[], grass:[], rock:[], structure:[], blue_base:[], red_base:[], blue_lava:[], red_lava:[], potion:[],person:[],player:[], mine:[], targ:[]};
+        var map = { grid:[], grass:[], rock:[], structure:[], blue_base:[], red_base:[], blue_lava:[], red_lava:[], potion:[],person:[],player:[], mine:[], targ:[], p_arrow:[], p_mine:[]};
         for (var x =0 ; x<gridSize.x;x++){
             map.grid[x]=[];
         } 
