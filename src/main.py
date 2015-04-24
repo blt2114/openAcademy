@@ -145,6 +145,10 @@ def load_screen():
     if "sound" in current_user:
         sound=current_user["sound"]
         current_user.pop("sound")
+    target = None
+    if "target" in current_user:
+        target = current_user["target"]
+        current_user.pop("target")
     screen.pop('_id', None)
     for user in screen["users"]:
         user.pop('_id')
@@ -154,7 +158,8 @@ def load_screen():
     screen.pop('Y')
     current_user['_id']=str(current_user['_id'])
     users.update({"_id":user_id},{"$unset":{'sound':""}})
-    return {'screen':screen,'player':current_user,"sound":sound}
+    users.update({"_id":user_id},{"$unset":{'target':""}})
+    return {'screen':screen,'player':current_user,"sound":sound, "target":target}
 
 PICKUP = ["pickup_left","pickup_right","pickup_up","pickup_down", "pickup_special"]
 DIRECTIONS = {"up":-1,"down":1,"left":-1,"right":1}

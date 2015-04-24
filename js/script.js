@@ -110,6 +110,8 @@ $(function() {
         drawCells(svgContainer, scales, map.person, "person");
         drawCells(svgContainer, scales, map.player, "player");//  the current player
 	drawCells(svgContainer, scales, map.mine, "mine");
+	drawCells(svgContainer, scales, map.targ, "targ");
+
         var groups = { path:svgContainer.append("g"),
             position:svgContainer.append("g") };
 
@@ -155,7 +157,8 @@ $(function() {
 	    updatePlayerInfo(player_data);
 	    player_x = player_data["x"];
 	    player_y = player_data["y"];
-            var map = completeMap(gridSize,screen_data["tiles"],screen_data["users"],player_x,player_y);
+	    target = data['target'];
+            var map = completeMap(gridSize,screen_data["tiles"],screen_data["users"],player_x,player_y,target);
             drawMap(map);
             console.log("sound is "+data["sound"]);
             sound = data["sound"];
@@ -164,14 +167,19 @@ $(function() {
     }
 
     // Construct the map obj using the terrain and users arrays
-    function completeMap(gridSize,terrain,users, player_x, player_y){
+    function completeMap(gridSize,terrain,users, player_x, player_y, target){
 	//, current_player){
-        var map = { grid:[], grass:[], rock:[], structure:[], blue_base:[], red_base:[], blue_lava:[], red_lava:[], potion:[],person:[],player:[], mine:[]};
+        var map = { grid:[], grass:[], rock:[], structure:[], blue_base:[], red_base:[], blue_lava:[], red_lava:[], potion:[],person:[],player:[], mine:[], targ:[]};
         for (var x =0 ; x<gridSize.x;x++){
             map.grid[x]=[];
         } 
         var tiles =[];
         // by default all tiles sent are rock
+	if (target){
+	    console.log("target", target);
+	    cell = {x:target["x"],y: target["y"], type: "targ"};
+	    map["targ"].push(cell);
+	}
         for (var i =0;i<terrain.length;i++){
             var x_pos=terrain[i].x;
             var y_pos=terrain[i].y;

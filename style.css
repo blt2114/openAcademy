@@ -91,6 +91,13 @@ body {
     height: 20px;
     background-image: url("images/potion.jpg");
 }
+.targ {
+    position: absolute;
+    width: 20px;
+    background-size: 20px 20px;
+    height: 20px;
+    background-image: url("images/redx.jpg");
+}
 
 .current_tool {
     font-weight:bold;
