@@ -13,13 +13,15 @@ from build import *
 from screen_info import *
 
 SCREEN_LEN = 25 #number of spaces per row and column
-WORLD_LEN = 10 #number of screens per row and column of the world
+#WORLD_LEN = 10 #number of screens per row and column of the world
+WORLD_LEN = 3
 TOOLS = {1: "pickup", 2: "bow", 3: "mine", 4: "build"}
 INITIAL_HEALTH = 100
 INITIAL_SCORE = 0
 INITIAL_MINES = 5
 INITIAL_ARROWS = 5
 #TODO:Brian MAX_HEALTH/ARROWS/MINES
+#TODO: Riaz implement base stuff
 
 
 
@@ -28,24 +30,35 @@ if len(sys.argv) is not 2:
     sys.exit(2)
 web_root=sys.argv[1]
 
-def generate_tiles():
+def generate_tiles(base_color):
     #generate tiles in random positions in SCREEN_LENXSCREEN_LEN  grid.  1/6 of positions
+    print "hello"
     tiles=[]
+    is_base = False
+    if base_color != '':
+        print "hey"
+        is_base = True
     for x in range(SCREEN_LEN):
         for y in range(SCREEN_LEN):
-            c = randint(1,12)
-            if c == 6:
-                tiles.append({'type':"rock",'x':x,'y':y})
-            elif c == 5:
-                tiles.append({'type':"potion",'x':x,'y':y})
+            if is_base and x in range(SCREEN_LEN/2-1,SCREEN_LEN/2+2) and y in range(SCREEN_LEN/2-1,SCREEN_LEN/2+2):
+                #print x, y
+                #if is_base == True:
+                print base_color+"_base"
+                tiles.append({'type': base_color + '_base','x': x, 'y': y})
+            else:
+                c = randint(1,12)
+                if c == 6:
+                    tiles.append({'type':"rock",'x':x,'y':y})
+                elif c == 5:
+                    tiles.append({'type':"potion",'x':x,'y':y})
     return tiles 
 
 # establish connection with game db
 client=MongoClient()
 world=client.game.world
 users=client.game.users
-RED = {'X': 1, 'Y': 1}
-BLUE = {'X':3, 'Y': 1}
+RED = {'X': 0, 'Y': 1}
+BLUE = {'X':2, 'Y': 1}
 def create_user():
     print "creating user"
     red_users = users.find({"team":"red"}).count()
@@ -68,6 +81,7 @@ def create_user():
     user["arrows"] = INITIAL_ARROWS
     user["shield"] = False
     user["mines"] = INITIAL_MINES
+    user['primed'] = False
     users.insert(user)
     return user
 
@@ -75,7 +89,12 @@ def create_world():
     for X in range(WORLD_LEN):
         for Y in range(WORLD_LEN):
             screen = {}
-            screen['tiles'] = generate_tiles()
+            if (X == RED['X']) and (Y == RED['Y']):
+                screen['tiles'] = generate_tiles('red')
+            elif (X == BLUE['X']) and (Y == BLUE['Y']):
+                screen['tiles'] = generate_tiles('blue')
+            else:
+                screen['tiles'] = generate_tiles('')
             screen['X']=X
             screen['Y']=Y
             screen['users']=[]
@@ -85,6 +104,7 @@ def create_world():
                 continue
             world.insert(screen)
 
+    
 
 @route("/move", method="POST")
 def move():
@@ -126,6 +146,10 @@ def load_screen():
     if "sound" in current_user:
         sound=current_user["sound"]
         current_user.pop("sound")
+    target = None
+    if "target" in current_user:
+        target = current_user["target"]
+        current_user.pop("target")
     screen.pop('_id', None)
     for user in screen["users"]:
         user.pop('_id')
@@ -135,7 +159,8 @@ def load_screen():
     screen.pop('Y')
     current_user['_id']=str(current_user['_id'])
     users.update({"_id":user_id},{"$unset":{'sound':""}})
-    return {'screen':screen,'player':current_user,"sound":sound}
+    users.update({"_id":user_id},{"$unset":{'target':""}})
+    return {'screen':screen,'player':current_user,"sound":sound, "target":target}
 
 PICKUP = ["pickup_left","pickup_right","pickup_up","pickup_down", "pickup_special"]
 DIRECTIONS = {"up":-1,"down":1,"left":-1,"right":1}
@@ -159,7 +184,10 @@ def act():
             print "invalid_shoot"
     elif tool == "mine":
         if can_lay_mine(user, dir):
-            lay_mine(user)
+            if not user['primed']:
+                lay_mine(user)
+            else:
+                det_mine(user)
         else:
             print "invalid mine"
     elif tool == "build":

@@ -29,6 +29,7 @@ def shoot(user, user_id, screen, dir):
             return
         # if user has just dropped a tile they will not be hit by shot
         if terrain_at(target):
+            users.update({"_id":user_id},{"$set":{'target': {'x' : target['x'], 'y':target['y']}}})
             return
         if user_at(target):
             is_enemy, enemy = user_at(target)
@@ -37,8 +38,11 @@ def shoot(user, user_id, screen, dir):
                 user = users.find_one({"_id":user['_id']})
                 if (user['health'] <= 0):
                     respawn(user)
+
             else:
+                users.update({"_id":user_id},{"$set":{'target': {'x' : target['x'], 'y':target['y']}}})
                 users.update({"_id":enemy['_id']},{"$inc": {'health': -30}})
                 enemy = users.find_one({"_id":enemy['_id']})
                 if enemy["health"] <= 0:
                     respawn(enemy)
+            return

@@ -7,8 +7,8 @@ from bottle import route, run, template, request, response
 from bson.objectid import ObjectId
 from screen_info import *
 
-RED = {"X": 1, "Y": 1}
-BLUE = {"X":3, "Y":1}
+RED = {"X": 0, "Y": 1}
+BLUE = {"X":2, "Y":1}
 def respawn(user):
     screen = get_screen(user)
     if user['team'] == 'red':
@@ -30,4 +30,4 @@ def respawn(user):
     #blowup animation
     users.update({"_id":user['_id']},{"$set": user})
     world.update({"_id":screen['_id']},{"$pull":{"users":{"_id": user["_id"]}}})
-    world.update({"X":RED["X"],"Y":RED["Y"]},{"$push":{"users":user}})
+    world.update({"X":color["X"],"Y":color["Y"]},{"$push":{"users":user}})
