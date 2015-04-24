@@ -38,6 +38,7 @@ def update_position(user,move):
         new_screen = get_screen(new_pos)
         new_screen['users'].append(user)
         world.update({"_id":new_screen['_id']},{"$set":new_screen})
+        screen = new_screen
     users.update({"_id": user["_id"]}, {"$set" : user})
     users.update({"_id":user['_id']},{"$set":{'sound':"score"}})
     if potion_at(new_pos):

@@ -83,8 +83,7 @@ def create_user():
     user["mines"] = INITIAL_MINES
     users.insert(user)
     return user
-RED_BASE = {'X':0, 'Y':1}
-BLUE_BASE = {'X':2,'Y':1}
+
 def create_world():
     for X in range(WORLD_LEN):
         for Y in range(WORLD_LEN):

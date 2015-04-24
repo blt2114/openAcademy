@@ -68,6 +68,9 @@ def terrain_at(pos):
     tile = world.find({"X":pos["X"],"Y":pos["Y"],"tiles":{"type":"rock","x":pos['x'],"y":pos['y']}})
     if tile.count():
         return True
+    tile = world.find({"X":pos["X"],"Y":pos["Y"],"tiles":{"type":"red_base","x":pos['x'],"y":pos['y']}})
+    if tile.count():
+        return True
     return False
 
 def rock_at(pos):
