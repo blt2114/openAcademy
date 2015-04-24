@@ -79,6 +79,7 @@ def rock_at(pos):
     if tile.count():
         return True
     return False
+
 # checks if the position has a user on it.
 #TODO fix so that actually checks if a user is there
 def user_at(pos):

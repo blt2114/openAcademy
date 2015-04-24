@@ -16,8 +16,8 @@ def can_shoot(user, dir):
     else:
         return has_arrows(user)
 
-#shots an arrow from player in given direction until it hits terrain (no affect) or player (decrements health)
-#fored arrpws stp[ at edge of current screen
+# shots an arrow from player in given direction until it hits terrain (no affect) or player (decrements health)
+# fired arrows stop at edge of current screen
 def shoot(user, user_id, screen, dir):
     if dir == "special":
         users.update({"_id": user_id}, {"$set":{"shield": True}})
@@ -27,12 +27,11 @@ def shoot(user, user_id, screen, dir):
         target = get_tile_coord(user,dir,magnitude)
         if (target["X"] != screen["X"]) or (target["Y"] != screen["Y"]):
             return
-        #if user has just dropped a tile they will not be hit by shot
+        # if user has just dropped a tile they will not be hit by shot
         if terrain_at(target):
             return
         if user_at(target):
             is_enemy, enemy = user_at(target)
-            #print "enemy", enemy
             if enemy["shield"]:
                 users.update({"_id":user['_id']},{"$inc": {'health': -10}})
                 user = users.find_one({"_id":user['_id']})
