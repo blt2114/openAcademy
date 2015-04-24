@@ -45,6 +45,7 @@ def generate_tiles(base_color):
                 #if is_base == True:
                 print base_color+"_base"
                 tiles.append({'type': base_color + '_base','x': x, 'y': y})
+            #randomly place rocks, potions, and arrows/mines for pickup around the screen
             else:
                 c = randint(1,12)
                 if c == 6:
@@ -85,6 +86,7 @@ def create_user():
     user["arrows"] = INITIAL_ARROWS
     user["shield"] = False
     user["mines"] = INITIAL_MINES
+    #primed indicates whether the user has a mine deployed awaiting detonation
     user['primed'] = False
     users.insert(user)
     return user

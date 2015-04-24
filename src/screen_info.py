@@ -77,7 +77,6 @@ def mine_at(pos):
         return False 
     tile = world.find({"X":pos["X"],"Y":pos["Y"],"tiles":{"type":"mine","x":pos['x'],"y":pos['y']}})
     if tile.count():
-        print "WHOAA"
         return True
     return False
 # checks the if the position provided has a rock on it.

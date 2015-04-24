@@ -178,7 +178,6 @@ $(function() {
         var tiles =[];
         // by default all tiles sent are rock
 	if (target){
-	    console.log("target", target);
 	    cell = {x:target["x"],y: target["y"], type: "targ"};
 	    map["targ"].push(cell);
 	}
