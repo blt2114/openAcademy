@@ -131,7 +131,6 @@ def user_at(pos):
 
 #checks if the tile with given position is empty of players,terrain, and potion
 def tile_is_empty(tile_pos):
-    #tile_pos = get_tile_coord(user,dir,magnitude)
     if user_at(tile_pos) or terrain_at(tile_pos) or potion_at(tile_pos):
         return False
     return True
