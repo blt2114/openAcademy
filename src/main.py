@@ -20,9 +20,9 @@ INITIAL_HEALTH = 100
 INITIAL_SCORE = 0
 INITIAL_MINES = 5
 INITIAL_ARROWS = 5
+TEAM_1_COLOR="red"
+TEAM_2_COLOR="blue"
 #TODO:Brian MAX_HEALTH/ARROWS/MINES
-#TODO: Riaz implement base stuff
-
 
 
 if len(sys.argv) is not 2:
@@ -63,8 +63,8 @@ RED = {'X': 0, 'Y': 1}
 BLUE = {'X':2, 'Y': 1}
 def create_user():
     print "creating user"
-    red_users = users.find({"team":"red"}).count()
-    blue_users = users.find({"team":"blue"}).count()
+    red_users = users.find({"team":TEAM_1_COLOR}).count()
+    blue_users = users.find({"team":TEAM_2_COLOR}).count()
     color = RED
     if red_users > blue_users:
         color = BLUE
@@ -72,9 +72,9 @@ def create_user():
     while not tile_is_empty(user):
         user = {'X':color['X'],'Y':color['Y'],'x': randint(1,20), 'y':randint(1,20)}
     if color == RED:
-        user['team'] = 'red'
+        user['team'] = TEAM_1_COLOR
     else:
-        user['team'] = 'blue'
+        user['team'] = TEAM_2_COLOR
     user["health"]= INITIAL_HEALTH
     user["score"]= INITIAL_SCORE
     user['carrying'] = 0
@@ -93,9 +93,9 @@ def create_world():
         for Y in range(WORLD_LEN):
             screen = {}
             if (X == RED['X']) and (Y == RED['Y']):
-                screen['tiles'] = generate_tiles('red')
+                screen['tiles'] = generate_tiles(TEAM_1_COLOR)
             elif (X == BLUE['X']) and (Y == BLUE['Y']):
-                screen['tiles'] = generate_tiles('blue')
+                screen['tiles'] = generate_tiles(TEAM_2_COLOR)
             else:
                 screen['tiles'] = generate_tiles('')
             screen['X']=X
