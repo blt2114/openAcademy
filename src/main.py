@@ -30,17 +30,32 @@ if len(sys.argv) is not 2:
     sys.exit(2)
 web_root=sys.argv[1]
 
-def generate_tiles(base_color):
+# generates a tiles array, for an arbitrary screen or for a base if
+# base_color is given. If the postion given is on the end of the world, then
+# set the walls on that edge to rocks
+def generate_tiles(base_color,X,Y):
     #generate tiles in random positions in SCREEN_LENXSCREEN_LEN  grid.  1/6 of positions
     tiles=[]
     is_base = False
     if base_color != '':
         is_base = True
     for x in range(SCREEN_LEN):
+        if X==0 and x == 0:
+            for y in range(SCREEN_LEN):
+                tiles.append({'type':"rock",'x':x,'y':y})
+            continue
+        if X==WORLD_LEN-1 and x == SCREEN_LEN-1:
+            for y in range(SCREEN_LEN):
+                tiles.append({'type':"rock",'x':x,'y':y})
+            continue
         for y in range(SCREEN_LEN):
+            if Y==WORLD_LEN-1 and y==SCREEN_LEN-1:
+                tiles.append({'type':"rock",'x':x,'y':y})
+                continue
+            if Y==0 and y==0:
+                tiles.append({'type':"rock",'x':x,'y':y})
+                continue
             if is_base and x in range(SCREEN_LEN/2-1,SCREEN_LEN/2+2) and y in range(SCREEN_LEN/2-1,SCREEN_LEN/2+2):
-                #print x, y
-                #if is_base == True:
                 tiles.append({'type': base_color + '_base','x': x, 'y': y})
             #randomly place rocks, potions, and arrows/mines for pickup around the screen
             else:
@@ -93,11 +108,12 @@ def create_world():
         for Y in range(WORLD_LEN):
             screen = {}
             if (X == RED['X']) and (Y == RED['Y']):
-                screen['tiles'] = generate_tiles(TEAM_1_COLOR)
+                screen['tiles'] = generate_tiles(TEAM_1_COLOR,X,Y)
             elif (X == BLUE['X']) and (Y == BLUE['Y']):
-                screen['tiles'] = generate_tiles(TEAM_2_COLOR)
+                screen['tiles'] = generate_tiles(TEAM_2_COLOR,X,Y)
             else:
-                screen['tiles'] = generate_tiles('')
+                screen['tiles'] = generate_tiles('',X,Y)
+            
             screen['X']=X
             screen['Y']=Y
             screen['users']=[]
