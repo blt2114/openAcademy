@@ -17,88 +17,59 @@ def can_move(user,move):
 def update_position(user,move):
     screen= get_screen(user)
     new_pos= new_user_coord(user,move)
-    
-    #if playermove does not result in changing screens
-    if ((new_pos['X']==user['X'] ) and (new_pos['Y']==user['Y'])):
-        '''
-        for u in screen['users']:
-            if u["_id"]==user["_id"]:
-                u['x']=new_pos['x']
-                u['y']=new_pos['y']
-                break
-        '''
-        user_new=user.copy()
-        user_new['x']=new_pos['x']
-        user_new['y']=new_pos['y']
-        write_result=world.update(
-            {
-                "_id":screen["_id"],
-                "tiles":{
-                    "$not":{
-                        "$elemMatch":{
-                            "x":user_new['x'],
-                            "y":user_new['y'],
-                            "type":"rock"
-                        }
+
+    user_new=user.copy()
+    user_new['X']=new_pos['X']
+    user_new['Y']=new_pos['Y']
+    user_new['x']=new_pos['x']
+    user_new['y']=new_pos['y']
+    write_result=world.update(
+        {
+            "X":user_new["X"],
+            "Y":user_new["Y"],
+            "tiles":{
+                "$not":{
+                    "$elemMatch":{
+                        "x":user_new['x'],
+                        "y":user_new['y'],
+                        "type":"rock"
                     }
-                },
-                "users":{
-                    "$not":{
-                        "$elemMatch":{
-                            "x":user_new['x'],
-                            "y":user_new['y'],
-                        }
-                    }
-                },
-                "tiles":{
-                    "$not":{
-                        "$elemMatch":{
-                            "x":user_new['x'],
-                            "y":user_new['y'],
-                            "type":"rock"
-                            }
-                        }
-                    }
-            },{
-                "$push":{
-                    "users":user_new
                 }
             },
-            False # no upserting
-        )
-        if not write_result["updatedExisting"]:
-            sys.stderr.write("update of user postion failed because tile"+
-            "not open\n")
-            return()
-        world.update(
-            {
-                "X":user['X'],
-                "Y":user["Y"]
-            },{
-                 "$pull":{
-                    "users":{
-                        'x':user['x'],
-                        'y':user['y']
+            "users":{
+                "$not":{
+                    "$elemMatch":{
+                        "x":user_new['x'],
+                        "y":user_new['y'],
                     }
                 }
             }
-        )
-        user=user_new
+        },{
+            "$push":{
+                "users":user_new
+            }
+        },
+        False # no upserting
+    )
+    if not write_result["updatedExisting"]:
+        sys.stderr.write("update of user postion failed because tile"+
+        "not open\n")
+        return()
+    world.update(
+        {
+            "X":user['X'],
+            "Y":user["Y"]
+        },{
+             "$pull":{
+                "users":{
+                    'x':user['x'],
+                    'y':user['y']
+                }
+            }
+        }
+    )
+    user=user_new
     #else if playermove causes player to move between screens
-    else:
-        user['y']=new_pos['y']
-        user['x']=new_pos['x']
-        user['Y']=new_pos['Y']
-        user['X']=new_pos['X']
-        for u in screen['users']:
-            if u["_id"]==user["_id"]:
-                screen['users'].remove(u) 
-                world.update({"_id":screen['_id']},{"$set":screen})
-                break
-        new_screen = get_screen(new_pos)
-        new_screen['users'].append(user)
-        world.update({"_id":new_screen['_id']},{"$set":new_screen})
-        screen = new_screen
     users.update({"_id": user["_id"]}, {"$set" : user})
     users.update({"_id":user['_id']},{"$set":{'sound':"score"}})
     if potion_at(new_pos):
