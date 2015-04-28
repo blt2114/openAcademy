@@ -99,6 +99,28 @@ body {
     background-image: url("images/redx.jpg");
 }
 
+.path {
+    position: absolute;
+    width: 20px;
+    background-size: 20px 20px;
+    height: 20px;
+    background-image: url("images/path.jpg");
+}
+.p_arrow {
+    position: absolute;
+    width: 20px;
+    background-size: 20px 20px;
+    height: 20px;
+    background-image: url("images/bow.png");
+}
+
+.p_mine {
+    position: absolute;
+    width: 20px;
+    background-size: 20px 20px;
+    height: 20px;
+    background-image: url("images/p_mine.jpg");
+}
 .current_tool {
     font-weight:bold;
 }

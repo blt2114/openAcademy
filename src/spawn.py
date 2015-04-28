@@ -22,7 +22,7 @@ def respawn(user):
     user["health"]=100
     user["score"]=0
     user['carrying'] = 0
-    user["tools"] = [1,2,3]
+    user["tools"] = [1,2,3,4]
     user["current_tool"] = 1
     user["arrows"] = 5
     user["shield"] = False

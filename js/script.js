@@ -110,7 +110,10 @@ $(function() {
         drawCells(svgContainer, scales, map.person, "person");
         drawCells(svgContainer, scales, map.player, "player");//  the current player
 	drawCells(svgContainer, scales, map.mine, "mine");
+	drawCells(svgContainer, scales, map.path, "path");
 	drawCells(svgContainer, scales, map.targ, "targ");
+	drawCells(svgContainer, scales, map.p_arrow, "p_arrow");
+	drawCells(svgContainer, scales, map.p_mine, "p_mine");
 
         var groups = { path:svgContainer.append("g"),
             position:svgContainer.append("g") };
@@ -158,7 +161,8 @@ $(function() {
 	    player_x = player_data["x"];
 	    player_y = player_data["y"];
 	    target = data['target'];
-            var map = completeMap(gridSize,screen_data["tiles"],screen_data["users"],player_x,player_y,target);
+	    path1 = data['path'];
+            var map = completeMap(gridSize,screen_data["tiles"],screen_data["users"],player_x,player_y,target,path1);
             drawMap(map);
             console.log("sound is "+data["sound"]);
             sound = data["sound"];
@@ -167,18 +171,25 @@ $(function() {
     }
 
     // Construct the map obj using the terrain and users arrays
-    function completeMap(gridSize,terrain,users, player_x, player_y, target){
+    function completeMap(gridSize,terrain,users, player_x, player_y, target, path1){
 	//, current_player){
-        var map = { grid:[], grass:[], rock:[], structure:[], blue_base:[], red_base:[], blue_lava:[], red_lava:[], potion:[],person:[],player:[], mine:[], targ:[]};
+        var map = { grid:[], grass:[], rock:[], structure:[], blue_base:[], red_base:[], blue_lava:[], red_lava:[], potion:[],person:[],player:[], mine:[], targ:[],path:[], p_arrow:[], p_mine:[]};
         for (var x =0 ; x<gridSize.x;x++){
             map.grid[x]=[];
         } 
         var tiles =[];
         // by default all tiles sent are rock
 	if (target){
-	    console.log("target", target);
 	    cell = {x:target["x"],y: target["y"], type: "targ"};
 	    map["targ"].push(cell);
+	if (path1){
+	    for (var i = 0; i < path1.length; i++){
+		p = path1[i];
+		cell = {x:p["x"],y: p["y"], type: "path"};
+		map["path"].push(cell);
+		}
+	    }
+
 	}
         for (var i =0;i<terrain.length;i++){
             var x_pos=terrain[i].x;

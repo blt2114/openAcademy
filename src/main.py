@@ -32,25 +32,27 @@ web_root=sys.argv[1]
 
 def generate_tiles(base_color):
     #generate tiles in random positions in SCREEN_LENXSCREEN_LEN  grid.  1/6 of positions
-    print "hello"
     tiles=[]
     is_base = False
     if base_color != '':
-        print "hey"
         is_base = True
     for x in range(SCREEN_LEN):
         for y in range(SCREEN_LEN):
             if is_base and x in range(SCREEN_LEN/2-1,SCREEN_LEN/2+2) and y in range(SCREEN_LEN/2-1,SCREEN_LEN/2+2):
                 #print x, y
                 #if is_base == True:
-                print base_color+"_base"
                 tiles.append({'type': base_color + '_base','x': x, 'y': y})
+            #randomly place rocks, potions, and arrows/mines for pickup around the screen
             else:
                 c = randint(1,12)
                 if c == 6:
                     tiles.append({'type':"rock",'x':x,'y':y})
                 elif c == 5:
                     tiles.append({'type':"potion",'x':x,'y':y})
+                elif c == 4:
+                    tiles.append({'type':"p_arrow",'x':x,'y':y})
+                elif c == 3:
+                    tiles.append({'type':"p_mine",'x':x,'y':y})
     return tiles 
 
 # establish connection with game db
@@ -81,6 +83,7 @@ def create_user():
     user["arrows"] = INITIAL_ARROWS
     user["shield"] = False
     user["mines"] = INITIAL_MINES
+    #primed indicates whether the user has a mine deployed awaiting detonation
     user['primed'] = False
     users.insert(user)
     return user
@@ -150,6 +153,10 @@ def load_screen():
     if "target" in current_user:
         target = current_user["target"]
         current_user.pop("target")
+    path = None
+    if "path" in current_user:
+        path = current_user["path"]
+        current_user.pop("path")
     screen.pop('_id', None)
     for user in screen["users"]:
         user.pop('_id')
@@ -160,7 +167,8 @@ def load_screen():
     current_user['_id']=str(current_user['_id'])
     users.update({"_id":user_id},{"$unset":{'sound':""}})
     users.update({"_id":user_id},{"$unset":{'target':""}})
-    return {'screen':screen,'player':current_user,"sound":sound, "target":target}
+    users.update({"_id":user_id},{"$unset":{'path':""}})
+    return {'screen':screen,'player':current_user,"sound":sound, "target":target, "path": path}
 
 PICKUP = ["pickup_left","pickup_right","pickup_up","pickup_down", "pickup_special"]
 DIRECTIONS = {"up":-1,"down":1,"left":-1,"right":1}

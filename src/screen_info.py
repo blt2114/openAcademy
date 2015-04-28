@@ -37,6 +37,26 @@ def potion_at(pos):
         return True
     return False
 
+def p_arrow_at(pos):
+    screen = get_screen(pos)
+    screen = world.find({"X":pos["X"],"Y":pos["Y"]})
+    if not screen.count():
+        return True
+    tile = world.find({"X":pos["X"],"Y":pos["Y"],"tiles":{"type":"p_arrow","x":pos['x'],"y":pos['y']}})
+    if tile.count():
+        return True
+    return False
+
+def p_mine_at(pos):
+    screen = get_screen(pos)
+    screen = world.find({"X":pos["X"],"Y":pos["Y"]})
+    if not screen.count():
+        return True
+    tile = world.find({"X":pos["X"],"Y":pos["Y"],"tiles":{"type":"p_mine","x":pos['x'],"y":pos['y']}})
+    if tile.count():
+        return True
+    return False
+
 def lava_at(pos, team):
     color = 'red'
     #print "team", team
@@ -57,7 +77,6 @@ def mine_at(pos):
         return False 
     tile = world.find({"X":pos["X"],"Y":pos["Y"],"tiles":{"type":"mine","x":pos['x'],"y":pos['y']}})
     if tile.count():
-        print "WHOAA"
         return True
     return False
 # checks the if the position provided has a rock on it.
