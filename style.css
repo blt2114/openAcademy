@@ -89,7 +89,7 @@ body {
     width: 20px;
     background-size: 20px 20px;
     height: 20px;
-    background-image: url("images/potion.jpg");
+    background-image: url("images/potion.png");
 }
 .targ {
     position: absolute;
@@ -119,7 +119,7 @@ body {
     width: 20px;
     background-size: 20px 20px;
     height: 20px;
-    background-image: url("images/bow.png");
+    background-image: url("images/reload.png");
 }
 
 .p_mine {

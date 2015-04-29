@@ -4,6 +4,8 @@ $(function() {
     var mineSound = new Audio('sounds/mine.mp3');
     var scoreSound = new Audio('sounds/score.mp3');
     var potionSound = new Audio('sounds/potion.mp3');
+    var laserSound = new Audio('sounds/laser.mp3');
+    var reloadSound = new Audio('sounds/reload.mp3');
     var gridSize = { x:SCREEN_LEN, y:SCREEN_LEN };
     // Draws the terrain and people  onto the map
     window.onkeydown = function move(keyEvent) {
@@ -107,14 +109,14 @@ $(function() {
         drawCells(svgContainer, scales, map.blue_lava, "blue_lava");
         drawCells(svgContainer, scales, map.red_lava, "red_lava");
         drawCells(svgContainer, scales, map.potion, "potion");
-        drawCells(svgContainer, scales, map.person, "person");
-        drawCells(svgContainer, scales, map.player, "player");//  the current player
         drawCells(svgContainer, scales, map.mine, "mine");
         drawCells(svgContainer, scales, map.path_v, "path_v");
         drawCells(svgContainer, scales, map.path_h, "path_h");
         drawCells(svgContainer, scales, map.targ, "targ");
         drawCells(svgContainer, scales, map.p_arrow, "p_arrow");
         drawCells(svgContainer, scales, map.p_mine, "p_mine");
+        drawCells(svgContainer, scales, map.person, "person");
+        drawCells(svgContainer, scales, map.player, "player");//  the current player
 
         var groups = { path:svgContainer.append("g"),
             position:svgContainer.append("g") };
@@ -141,6 +143,12 @@ $(function() {
         }
         if (sound == "mine"){
             soundObj= mineSound;
+        }
+        if (sound == "reload"){
+            soundObj= reloadSound;
+        }
+        if (sound == "laser"){
+            soundObj= laserSound;
         }
         if (soundObj!=null){
             soundObj.pause();
@@ -180,6 +188,24 @@ $(function() {
             map.grid[x]=[];
         } 
         var tiles =[];
+        for (x = 0; x < gridSize.x; x++) {
+            map.grid[x] = [];
+            for (y = 0; y < gridSize.y; y++) {
+                var type="grass";
+             //   var used = false;
+             //   
+              //  for (var i = 0;i < tiles.length;i++){
+               //     if (tiles[i].x===x && tiles[i].y === y){
+                //       // used =true;
+                 //   }
+                //}
+                if (!used){
+                    var cell = { x:x, y:y , type:type };
+                    map.grid[x][y] = cell;
+                    map[type].push(cell);
+                }
+            }
+        }
         for (var i =0;i<terrain.length;i++){
             var x_pos=terrain[i].x;
             var y_pos=terrain[i].y;
@@ -190,23 +216,6 @@ $(function() {
             map[type].push(cell);
         }
 
-        for (x = 0; x < gridSize.x; x++) {
-            map.grid[x] = [];
-            for (y = 0; y < gridSize.y; y++) {
-                var type="grass";
-                var used = false;
-                for (var i = 0;i < tiles.length;i++){
-                    if (tiles[i].x===x && tiles[i].y === y){
-                        used =true;
-                    }
-                }
-                if (!used){
-                    var cell = { x:x, y:y , type:type };
-                    map.grid[x][y] = cell;
-                    map[type].push(cell);
-                }
-            }
-        }
         for (var i =0;i<users.length;i++){
             var x_pos=users[i].x;
             var y_pos=users[i].y;
@@ -225,7 +234,9 @@ $(function() {
         if (target){
             // to show the directionality of the movement of the beam we need to add it to the cell
 
-            if (Number(target["x"]) === Number(player_x)) {
+            // Check the movement  betweeen teh path and the target
+            
+            if (Number(target["x"]) === Number(path1[0]["x"])) {
                 direction = "h";
             }else{
                 direction = "v";

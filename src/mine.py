@@ -4,6 +4,7 @@ import bottle
 import sys
 from bson.objectid import ObjectId
 from carry import *
+from  spawn import *
 
 
 def has_mines(user):
@@ -53,7 +54,8 @@ def det_mine(user):
     world.update({'X':mine['X'],'Y':mine['Y']},{'$pull':{'tiles':{'x':mine['x'],'y':mine['y'],'type':'mine'}}})
 
     users.update({"_id":user['_id']},{'$unset':{'current_mine':''}})
-    users.update({'_id':user['_id']},{'$set':{'sound':'mine'}})
+    #users.update({'_id':user['_id']},{'$set':{'sound':'mine'}})
+    users.update({"X":user["X"],"Y":user["Y"]},{'$set':{'sound':'mine'}},multi=True)
     users.update({'_id':user['_id']},{'$set':{'primed':False}})
     a = 'a'+str(user["_id"])
 

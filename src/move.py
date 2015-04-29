@@ -15,7 +15,6 @@ def can_move(user,move):
 
 # updates the users position as well as score and sound if as necessary
 def update_position(user,move):
-    screen= get_screen(user)
     new_pos= new_user_coord(user,move)
 
     user_new=user.copy()
@@ -75,16 +74,19 @@ def update_position(user,move):
     if potion_at(new_pos):
         if user['health'] < 100:
             users.update({"_id":user['_id']},{"$inc":{'health':+1}})
-        users.update({"_id":user['_id']},{"$set":{'sound':"potion"}})
-        world.update({"_id":screen['_id']},{"$pull":{"tiles":{"type":'potion',"x":new_pos['x'],"y":new_pos['y']}}})
+            users.update({"_id":user['_id']},{"$set":{'sound':"potion"}})
+            world.update({"X":user["X"],"Y":user["Y"]},{"$pull":{"tiles":{"type":'potion',"x":new_pos['x'],"y":new_pos['y']}}})
     if p_arrow_at(new_pos):
+        # if the user already has 10 arrows, they cannot pick up another
         if user['arrows'] < 10:
+            users.update({"_id":user['_id']},{"$set":{'sound':"reload"}})
             users.update({"_id":user['_id']},{"$inc":{'arrows':+1}})
-        world.update({"_id":screen['_id']},{"$pull":{"tiles":{"type":'p_arrow',"x":new_pos['x'],"y":new_pos['y']}}})
+            world.update({"X":user["X"],"Y":user["Y"]},{"$pull":{"tiles":{"type":'p_arrow',"x":new_pos['x'],"y":new_pos['y']}}})
     if p_mine_at(new_pos):
+        # if the user already has 10 mines, they cannot pick it up
         if user['mines'] < 10:
             users.update({"_id":user['_id']},{"$inc":{'mines':+1}})
-        world.update({"_id":screen['_id']},{"$pull":{"tiles":{"type":'p_mine',"x":new_pos['x'],"y":new_pos['y']}}})
+            world.update({"X":user["X"],"Y":user["Y"]},{"$pull":{"tiles":{"type":'p_mine',"x":new_pos['x'],"y":new_pos['y']}}})
     if mine_at(new_pos):
         users.update({"_id": user['_id']},{"$inc":{'health':-100}})    
         #add sound effect here
@@ -92,7 +94,7 @@ def update_position(user,move):
         person = users.find_one({"current_mine":{'X':new_pos['X'],'Y':new_pos['Y'],'x':new_pos['x'],'y':new_pos['y']}})
         det_mine(person)
         #users.update({"_id":user['_id']},{"$set":{'sound':"mine"}})
-        world.update({"_id":screen['_id']},{"$pull":{"tiles":{"type":'mine',"x":new_pos['x'],"y":new_pos['y']}}})
+        world.update({"X":user["X"],"Y":user["Y"]},{"$pull":{"tiles":{"type":'mine',"x":new_pos['x'],"y":new_pos['y']}}})
     if lava_at(new_pos, user['team']):
         users.update({"_id": user['_id']},{"$inc":{'health':-50}})     
     user = users.find_one({'_id':user['_id']})
