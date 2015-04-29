@@ -177,6 +177,21 @@ def load_screen():
         user.pop('_id')
         user.pop('Y')
         user.pop('X')
+        user.pop('tools')
+        user.pop('health')
+        user.pop('carrying')
+        user.pop('current_tool')
+        user.pop('score')
+        user.pop('mines')
+        user.pop('shield')
+    # go through every tile and check if it is a mine belonging to the other
+    # team.  If it does, remove it and don't display it.
+    num_tiles = len(screen["tiles"])
+#    print "tiles before: " + str(screen["tiles"])
+    for i in range(num_tiles):
+        if screen["tiles"][i]["type"] == "mine" and screen["tiles"][i]["team"] != user["team"]:
+            screen["tiles"]=screen["tiles"][0:i-1].extend(screen["tiles"][i:len(screen["tiles"])])
+#    print "tiles after: " + str(screen["tiles"])
     screen.pop('X')
     screen.pop('Y')
     current_user['_id']=str(current_user['_id'])

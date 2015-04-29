@@ -88,6 +88,7 @@ def update_position(user,move):
             users.update({"_id":user['_id']},{"$inc":{'mines':+1}})
             world.update({"X":user["X"],"Y":user["Y"]},{"$pull":{"tiles":{"type":'p_mine',"x":new_pos['x'],"y":new_pos['y']}}})
     if mine_at(new_pos):
+        print "person det mine"
         users.update({"_id": user['_id']},{"$inc":{'health':-100}})    
         #add sound effect here
         #blocks = world.find_one({'X':new_pos['X'],'Y':new_pos['Y']}, {'tiles': 1})

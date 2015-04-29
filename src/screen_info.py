@@ -75,7 +75,9 @@ def mine_at(pos):
     screen = world.find({"X":pos["X"],"Y":pos["Y"]})
     if not screen.count():
         return False 
-    tile = world.find({"X":pos["X"],"Y":pos["Y"],"tiles":{"type":"mine","x":pos['x'],"y":pos['y']}})
+    tile=world.find({"X":pos["X"],"Y":pos["Y"],"tiles":{
+        "$elemMatch":{"type":"mine","x":pos['x'],"y":pos['y']}
+        }})
     if tile.count():
         return True
     return False
