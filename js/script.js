@@ -192,18 +192,9 @@ $(function() {
             map.grid[x] = [];
             for (y = 0; y < gridSize.y; y++) {
                 var type="grass";
-             //   var used = false;
-             //   
-              //  for (var i = 0;i < tiles.length;i++){
-               //     if (tiles[i].x===x && tiles[i].y === y){
-                //       // used =true;
-                 //   }
-                //}
-                if (!used){
-                    var cell = { x:x, y:y , type:type };
-                    map.grid[x][y] = cell;
-                    map[type].push(cell);
-                }
+                var cell = { x:x, y:y , type:type };
+                map.grid[x][y] = cell;
+                map[type].push(cell);
             }
         }
         for (var i =0;i<terrain.length;i++){
@@ -235,7 +226,7 @@ $(function() {
             // to show the directionality of the movement of the beam we need to add it to the cell
 
             // Check the movement  betweeen teh path and the target
-            
+
             if (Number(target["x"]) === Number(path1[0]["x"])) {
                 direction = "h";
             }else{
