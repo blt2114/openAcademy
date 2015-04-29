@@ -22,8 +22,6 @@ INITIAL_MINES = 5
 INITIAL_ARROWS = 5
 TEAM_1_COLOR="red"
 TEAM_2_COLOR="blue"
-#TODO:Brian MAX_HEALTH/ARROWS/MINES
-
 
 if len(sys.argv) is not 2:
     print "please provide webroot as argument: python main.py <web_root>"

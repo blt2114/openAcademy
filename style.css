@@ -99,12 +99,20 @@ body {
     background-image: url("images/redx.jpg");
 }
 
-.path {
+/* for path of a laser, first if fired horizonatally, then vertically*/
+.path_v {
     position: absolute;
     width: 20px;
     background-size: 20px 20px;
+    height: 5px;
+    background-image: url("images/red.png");
+}
+.path_h {
+    position: absolute;
+    width: 5px;
+    background-size: 20px 20px;
     height: 20px;
-    background-image: url("images/path.jpg");
+    background-image: url("images/red.png");
 }
 .p_arrow {
     position: absolute;
