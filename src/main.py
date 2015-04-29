@@ -23,10 +23,11 @@ INITIAL_ARROWS = 5
 TEAM_1_COLOR="red"
 TEAM_2_COLOR="blue"
 
-if len(sys.argv) is not 2:
-    print "please provide webroot as argument: python main.py <web_root>"
+if len(sys.argv) is not 3:
+    print "invalid use: python main.py <web_root> <port>"
     sys.exit(2)
 web_root=sys.argv[1]
+port=int(sys.argv[2])
 
 # generates a tiles array, for an arbitrary screen or for a base if
 # base_color is given. If the postion given is on the end of the world, then
@@ -235,4 +236,4 @@ def serve_index(filename):
     return bottle.static_file(filename, root=web_root)
 
 bottle.debug(True)
-bottle.run(host='localhost', port=8080)
+bottle.run(host='localhost', port=port)
