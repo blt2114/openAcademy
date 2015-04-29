@@ -117,6 +117,8 @@ $(function() {
         drawCells(svgContainer, scales, map.p_mine, "p_mine");
         drawCells(svgContainer, scales, map.person, "person");
         drawCells(svgContainer, scales, map.player, "player");//  the current player
+        drawCells(svgContainer, scales, map.blue, "blue");
+        drawCells(svgContainer, scales, map.red, "red");
 
         var groups = { path:svgContainer.append("g"),
             position:svgContainer.append("g") };
@@ -183,7 +185,7 @@ $(function() {
     //          empty dictionary if laser was not used
     //
     function completeMap(gridSize,terrain,users, player_x, player_y, target, path1){
-        var map = { grid:[], grass:[], rock:[], structure:[], blue_base:[], red_base:[], blue_lava:[], red_lava:[], potion:[],person:[],player:[], mine:[], targ:[],path_h:[],path_v:[], p_arrow:[], p_mine:[]};
+        var map = { grid:[], grass:[], rock:[], structure:[], blue_base:[], red:[],blue:[],red_base:[], blue_lava:[], red_lava:[], potion:[],person:[],player:[], mine:[], targ:[],path_h:[],path_v:[], p_arrow:[], p_mine:[]};
         for (var x =0 ; x<gridSize.x;x++){
             map.grid[x]=[];
         } 
@@ -219,6 +221,7 @@ $(function() {
                 cell ={x:x_pos,y:y_pos,type:"person"}; 
                 map.grid[x_pos][y_pos]=cell;
                 map["person"].push(cell);
+                map[users[i].team].push(cell);
             }
             tiles.push(cell);
         }

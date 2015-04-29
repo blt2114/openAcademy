@@ -88,7 +88,6 @@ def update_position(user,move):
             users.update({"_id":user['_id']},{"$inc":{'mines':+1}})
             world.update({"X":user["X"],"Y":user["Y"]},{"$pull":{"tiles":{"type":'p_mine',"x":new_pos['x'],"y":new_pos['y']}}})
     if mine_at(new_pos):
-        print "person det mine"
         users.update({"_id": user['_id']},{"$inc":{'health':-100}})    
         #add sound effect here
         #blocks = world.find_one({'X':new_pos['X'],'Y':new_pos['Y']}, {'tiles': 1})
@@ -96,6 +95,7 @@ def update_position(user,move):
         det_mine(person)
         #users.update({"_id":user['_id']},{"$set":{'sound':"mine"}})
         world.update({"X":user["X"],"Y":user["Y"]},{"$pull":{"tiles":{"type":'mine',"x":new_pos['x'],"y":new_pos['y']}}})
+        users.update({"X":user["X"],"Y":user["Y"]},{'$set':{'sound':'mine'}},multi=True)
     if lava_at(new_pos, user['team']):
         users.update({"_id": user['_id']},{"$inc":{'health':-50}})     
     user = users.find_one({'_id':user['_id']})
