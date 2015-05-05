@@ -252,5 +252,9 @@ def switch():
 def serve_index(filename):
     return bottle.static_file(filename, root=web_root)
 
+@route("/", method = "GET")
+def home():
+    bottle.redirect("/index.html")
+
 bottle.debug(True)
 bottle.run(host='localhost', port=port)
