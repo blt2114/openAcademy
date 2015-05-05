@@ -23,6 +23,7 @@ def shoot(user, user_id, screen, dir):
         users.update({"_id": user_id}, {"$set":{"shield": True}})
         return
     path = []
+    users.update({"_id": user_id}, {"$set":{"sound" : "laser"}})
     users.update({"_id": user_id}, {"$inc" : {"arrows":-1}})
     for magnitude in range(1,20):
         target = get_tile_coord(user,dir,magnitude)
@@ -31,13 +32,15 @@ def shoot(user, user_id, screen, dir):
                 return
             target = get_tile_coord(user,dir, magnitude-1)
             path.pop()
-            users.update({"_id":user_id},{"$set":{'target': {'x' : target['x'], 'y':target['y']}}})
-            users.update({"_id":user_id},{"$set":{'path': path}})
+            #users.update({"_id":user_id},{"$set":{'target': {'x' : target['x'], 'y':target['y']}}})
+            users.update({"X":user["X"],"Y":user["Y"]},{"$set":{'target': {'x' : target['x'], 'y':target['y']}}},multi=True)
+            users.update({"X":user["X"],"Y":user["Y"]},{"$set":{'path':path}},multi=True)
             return
         # if user has just dropped a tile they will not be hit by shot
         if terrain_at(target):
-            users.update({"_id":user_id},{"$set":{'target': {'x' : target['x'], 'y':target['y']}}})
-            users.update({"_id":user_id},{"$set":{'path': path}})
+            #users.update({"_id":user_id},{"$set":{'target': {'x' : target['x'], 'y':target['y']}}})
+            users.update({"X":user["X"],"Y":user["Y"]},{"$set":{'target': {'x' : target['x'], 'y':target['y']}}},multi=True)
+            users.update({"X":user["X"],"Y":user["Y"]},{"$set":{'path':path}},multi=True)
             return
         if user_at(target):
             is_enemy, enemy = user_at(target)
@@ -48,12 +51,12 @@ def shoot(user, user_id, screen, dir):
                     respawn(user)
 
             else:
-                users.update({"_id":user_id},{"$set":{'target': {'x' : target['x'], 'y':target['y']}}})
+                #users.update({"_id":user_id},{"$set":{'target': {'x' : target['x'], 'y':target['y']}}})
+                users.update({"X":user["X"],"Y":user["Y"]},{"$set":{'target': {'x' : target['x'], 'y':target['y']}}},multi=True)
                 users.update({"_id":enemy['_id']},{"$inc": {'health': -30}})
                 enemy = users.find_one({"_id":enemy['_id']})
                 if enemy["health"] <= 0:
                     respawn(enemy)
-            users.update({"_id":user_id},{"$set":{'path': path}})
+            users.update({"X":user["X"],"Y":user["Y"]},{"$set":{'path':path}},multi=True)
             return
         path.append({'x': target['x'], 'y': target['y']}) 
-

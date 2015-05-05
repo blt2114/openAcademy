@@ -23,10 +23,11 @@ INITIAL_ARROWS = 5
 TEAM_1_COLOR="red"
 TEAM_2_COLOR="blue"
 
-if len(sys.argv) is not 2:
-    print "please provide webroot as argument: python main.py <web_root>"
+if len(sys.argv) is not 3:
+    print "invalid use: python main.py <web_root> <port>"
     sys.exit(2)
 web_root=sys.argv[1]
+port=int(sys.argv[2])
 
 # generates a tiles array, for an arbitrary screen or for a base if
 # base_color is given. If the postion given is on the end of the world, then
@@ -178,6 +179,21 @@ def load_screen():
         user.pop('_id')
         user.pop('Y')
         user.pop('X')
+        user.pop('tools')
+        user.pop('health')
+        user.pop('carrying')
+        user.pop('current_tool')
+        user.pop('score')
+        user.pop('mines')
+        user.pop('shield')
+    # go through every tile and check if it is a mine belonging to the other
+    # team.  If it does, remove it and don't display it.
+    num_tiles = len(screen["tiles"])
+#    print "tiles before: " + str(screen["tiles"])
+    for i in range(num_tiles):
+        if screen["tiles"][i]["type"] == "mine" and screen["tiles"][i]["team"] != user["team"]:
+            screen["tiles"]=screen["tiles"][0:i-1].extend(screen["tiles"][i:len(screen["tiles"])])
+#    print "tiles after: " + str(screen["tiles"])
     screen.pop('X')
     screen.pop('Y')
     current_user['_id']=str(current_user['_id'])
@@ -237,4 +253,4 @@ def serve_index(filename):
     return bottle.static_file(filename, root=web_root)
 
 bottle.debug(True)
-bottle.run(host='localhost', port=8080)
+bottle.run(host='localhost', port=port)

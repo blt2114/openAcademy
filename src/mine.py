@@ -4,6 +4,7 @@ import bottle
 import sys
 from bson.objectid import ObjectId
 from carry import *
+from  spawn import *
 
 
 def has_mines(user):
@@ -24,7 +25,9 @@ def can_lay_mine(user, dir):
 def lay_mine(user):
     a = 'a' + str(user["_id"])
     #world.update({"X":user["X"], "Y":user["Y"]}, {"$push": {"tiles":{'x':user['x'],'y':user['y'],'type':'mine', 'mine_of' : a}}})
-    world.update({"X":user["X"], "Y":user["Y"]}, {"$push": {"tiles":{'x':user['x'],'y':user['y'],'type':'mine'}}})
+    world.update({"X":user["X"], "Y":user["Y"]}, {"$push":
+        {"tiles":{'x':user['x'],'y':user['y'],'type':'mine',
+        'team':user['team']}}})
     users.update({"_id": user['_id']}, {"$inc" : {"mines":-1}})
     users.update({"_id": user['_id']}, {"$set" : {"current_mine":{'X':user['X'], 'Y': user['Y'],'x': user['x'], 'y': user['y']}}})
     users.update({'_id':user['_id']},{'$set': {'primed': True}})
@@ -71,6 +74,7 @@ def det_mine(user):
 
     users.update({"_id":user['_id']},{'$unset':{'current_mine':''}})
     users.update({'_id':user['_id']},{'$set':{'sound':'mine'}})
+    users.update({"X":mine["X"],"Y":mine["Y"]},{'$set':{'sound':'mine'}},multi=True)
     users.update({'_id':user['_id']},{'$set':{'primed':False}})
     a = 'a'+str(user["_id"])
 

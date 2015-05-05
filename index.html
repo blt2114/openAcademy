@@ -19,19 +19,34 @@
     </head>
     <body>
         <h1>MongoDB Powered Game with Local Rendering</h1>
-    <div style="height:500px"></div>
-        <div class="display">
-	</div>
-        <br/>
+        <div style="text-align: left; width: 280px; margin-top:100px; padding-left:550px;">
+                <p> INSTRUCTIONS: <p> 
+                <p>
+                -Use the arrow keys to move. <br>
+                -Select desired action with 1, 2, 3, or 4. <br>
+                -Use W,A,S,D keys to pickup rock. Place with spacebar. <br>
+                -Use W,A,S,D keys to shoot arrows. <br>
+                -Use spacebar to place mine, space again to detonate. <br>
+                <br> 
+                </p>
+                <p> OBJECTIVES: <p>
+                <p>
+                -Red Team vs. Blue Team! Infiltrate the other team's base and destroy it with mines. <br>
+                </p>
+                </p>
+        </div>
+        <div class="display" style="height:100px">
+        </div>
+        <br>
         <table>
             <tr>
                 <td>Score: <div id="score"></div></td>
-                <td>Arrows: <div id="arrows"></div></td>
+                <td>Ammo: <div id="arrows"></div></td>
                 <td>Mines: <div id="mines"></div></td>
 		<td>X: <div id = "screenX"></div></td>
 		<td>Y: <div id = "screenY"></div></td>
                 <td id="pickup" class="current_tool">1 | PICKUP </td>
-                <td id="bow">2 | BOW </td>
+                <td id="bow">2 | LASER </td>
                 <td id="mine">3 | MINE </td>
 		<td id = "build">4 | BUILD </td>
             </tr>
