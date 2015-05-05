@@ -88,10 +88,12 @@ def terrain_at(pos):
     tile = world.find({"X":pos["X"],"Y":pos["Y"],"tiles":{"type":"rock","x":pos['x'],"y":pos['y']}})
     if tile.count():
         return True
-    tile = world.find({"X":pos["X"],"Y":pos["Y"],"tiles":{"type":"red_base","x":pos['x'],"y":pos['y']}})
+    #tile = world.find({"$and" : [{"X":pos["X"]},{"Y":pos["Y"]}, {"tiles.x" : pos['x']}, {'tiles.y' : pos['y']}, {'tiles.type':'red_base'}, {'tiles.health' : {'$exists' : 'True'}}]})
+    tile = world.find({"X":pos['X'], 'Y': pos['Y'], "tiles":{"$elemMatch":{'x':pos['x'],'y':pos['y'],'type':'red_base'}}})
     if tile.count():
         return True
-    tile = world.find({"X":pos["X"],"Y":pos["Y"],"tiles":{"type":"blue_base","x":pos['x'],"y":pos['y']}})
+    #tile = world.find({"$and" : [{"X":pos["X"]},{"Y":pos["Y"]}, {"tiles.x" : pos['x']}, {'tiles.y' : pos['y']}, {'tiles.type':'blue_base'}, {'tiles.health' : {'$exists' : 'True'}}]})
+    tile = world.find({"X":pos['X'], 'Y': pos['Y'], "tiles":{"$elemMatch":{'x':pos['x'],'y':pos['y'],'type':'blue_base'}}})
     if tile.count():
         return True
     tile = world.find({"X":pos["X"],"Y":pos["Y"],"tiles":{"type":"structure","x":pos['x'],"y":pos['y']}})
@@ -108,7 +110,15 @@ def rock_at(pos):
     if tile.count():
         return True
     return False
-
+def structure_at(pos):
+    screen = get_screen(pos)
+    screen = world.find({"X":pos["X"],"Y":pos["Y"]})
+    if not screen.count():
+        return True
+    tile = world.find({"X":pos["X"],"Y":pos["Y"],"tiles":{"type":"structure","x":pos['x'],"y":pos['y']}})
+    if tile.count():
+        return True
+    return False
 # checks if the position has a user on it.
 #TODO fix so that actually checks if a user is there
 def user_at(pos):

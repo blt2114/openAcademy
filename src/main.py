@@ -54,7 +54,8 @@ def generate_tiles(base_color,X,Y):
                 tiles.append({'type':"rock",'x':x,'y':y})
                 continue
             if is_base and x in range(SCREEN_LEN/2-1,SCREEN_LEN/2+2) and y in range(SCREEN_LEN/2-1,SCREEN_LEN/2+2):
-                tiles.append({'type': base_color + '_base','x': x, 'y': y})
+                tiles.append({'type': base_color + '_base','x': x, 'y': y, 'health': 200})
+                #tiles.append({'type': base_color + '_base','x': x, 'y': y})
             #randomly place rocks, potions, and arrows/mines for pickup around the screen
             else:
                 c = randint(1,12)
@@ -102,6 +103,7 @@ def create_user():
     return user
 
 def create_world():
+    print "creating world"
     for X in range(WORLD_LEN):
         for Y in range(WORLD_LEN):
             screen = {}
