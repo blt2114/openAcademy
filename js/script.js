@@ -1,11 +1,13 @@
 $(function() {
     var SCREEN_LEN=25;
     var damageSound = new Audio('sounds/smash.mp3');
+    damageSound.volume=0.3;
     var mineSound = new Audio('sounds/mine.mp3');
     var scoreSound = new Audio('sounds/score.mp3');
     var potionSound = new Audio('sounds/potion.mp3');
     var laserSound = new Audio('sounds/laser.mp3');
     var reloadSound = new Audio('sounds/reload.mp3');
+    reloadSound.volume=0.3;
     var gridSize = { x:SCREEN_LEN, y:SCREEN_LEN };
     // Draws the terrain and people  onto the map
     window.onkeydown = function move(keyEvent) {

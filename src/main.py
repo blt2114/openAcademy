@@ -23,6 +23,11 @@ INITIAL_ARROWS = 5
 TEAM_1_COLOR="red"
 TEAM_2_COLOR="blue"
 
+rock_freq=0.13
+potion_freq=0.05
+mine_freq=0.02
+arrow_freq=0.05
+
 if len(sys.argv) is not 3:
     print "invalid use: python main.py <web_root> <port>"
     sys.exit(2)
@@ -59,14 +64,20 @@ def generate_tiles(base_color,X,Y):
                 #tiles.append({'type': base_color + '_base','x': x, 'y': y})
             #randomly place rocks, potions, and arrows/mines for pickup around the screen
             else:
-                c = randint(1,12)
-                if c == 6:
+                c = randint(1,100)
+                if c < 100*rock_freq:
                     tiles.append({'type':"rock",'x':x,'y':y})
-                elif c == 5:
+                    continue
+                c = randint(1,100)
+                if c < 100*potion_freq:
                     tiles.append({'type':"potion",'x':x,'y':y})
-                elif c == 4:
+                    continue
+                c = randint(1,100)
+                if c < 100*arrow_freq:
                     tiles.append({'type':"p_arrow",'x':x,'y':y})
-                elif c == 3:
+                    continue
+                c = randint(1,100)
+                if c < 100*mine_freq:
                     tiles.append({'type':"p_mine",'x':x,'y':y})
     return tiles 
 
