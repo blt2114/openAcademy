@@ -50,7 +50,6 @@ def det_mine(user):
         elif terrain_at(p):
             if rock_at(p) or structure_at(p): 
                 world.update({'X':p['X'],'Y':p['Y']},{'$pull':{'tiles' : { 'x':p['x'] , 'y':p['y'], 'type': {'$exists':'true'}}}})
-            #else the block being attacked is part of the base. Do damage, and if its health is 
             else:
                 tiles = world.find_one({'X':p['X'],'Y':p['Y']},{'tiles':1, "_id": 0})['tiles']
                 for tile in tiles:
@@ -59,16 +58,12 @@ def det_mine(user):
                         break
                 world.update({'X': p['X'], 'Y':p['Y']}, {'$set': {'tiles' : tiles}})
                     
-                #world.update({'X':p['X'],'Y':p['Y'],"tiles.x":p["x"],"tiles.y":p["y"]},{'$inc': {'tiles.$.health' : -50}})
 
                 tile = world.find_one({'X':p['X'],'Y':p['Y']}, {'_id' : 0, 'tiles' : {'$elemMatch':{'x':p['x'],'y':p['y']}}})['tiles'][0]
                 tile_health = tile['health']
-                print tile_health
                 if tile_health <= 0:
                     world.update({'X':p['X'],'Y':p['Y']},{'$pull':{'tiles' : { 'x':p['x'] , 'y':p['y'], 'type': {'$exists':'True'}}, 'health': {'$exists': 'True'}}})
 
-            #world.update({'X':p['X'],'Y':p['Y']},{'$pull':{"$and": [{'tiles' : { 'x':p['x']}},{'tiles':{'y':p['y']}}]}})
-            #world.update({'X':p['X'],'Y':p['Y']},{'$pull':{'tiles.x' : p['x'], 'tiles.y':p['y']}})
 
     world.update({'X':mine['X'],'Y':mine['Y']},{'$pull':{'tiles':{'x':mine['x'],'y':mine['y'],'type':'mine'}}})
 

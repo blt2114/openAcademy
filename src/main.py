@@ -140,10 +140,31 @@ def move():
         users.update({"_id":user_id},{"$set":{'sound':"damage"}})
         print "invalid move"
 
+def game_is_over():
+    blueBase = False
+    redBase = False
+    base_screen = world.find_one({'X': BLUE['X'], 'Y':BLUE['Y']})
+    for tile in base_screen['tiles']:
+        if tile['type'] == 'blue_base':
+            blueBase = True
+            break   
+    if blueBase:
+        base_screen = world.find_one({'X': RED['X'], 'Y':RED['Y']})
+        for tile in base_screen['tiles']:
+            if tile['type'] == 'red_base':
+                redBase = True
+                break   
+    return not (blueBase and redBase)
+        
+        
 @bottle.get("/load_screen")
 def load_screen():
     if (world.count()==0):
         create_world()
+
+    if game_is_over():
+        print "GAME OVER"
+        return
     user_id=None
     current_user=None
     user_id_str= request.get_cookie("user_id")
