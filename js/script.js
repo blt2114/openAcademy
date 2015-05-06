@@ -217,6 +217,7 @@ $(function() {
                 cell ={x:x_pos,y:y_pos,type:"player"}; 
                 map.grid[x_pos][y_pos]=cell;
                 map["player"].push(cell);
+		map[users[i].team].push(cell);
             }else{
                 cell ={x:x_pos,y:y_pos,type:"person"}; 
                 map.grid[x_pos][y_pos]=cell;
