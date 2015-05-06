@@ -205,6 +205,12 @@ $(function() {
             var x_pos=terrain[i].x;
             var y_pos=terrain[i].y;
             var type = terrain[i].type;
+	    if (type == 'red_base' && terrain[i].health == 50){
+		type = 'fifty_red_base';
+	    }
+	    if (type == 'blue_base' && terrain[i].health == 50){
+		type = 'fifty_blue_base';
+	    }
             cell ={x:x_pos,y:y_pos,type:type}; 
             tiles.push(cell);
             map.grid[x_pos][y_pos]=cell;
