@@ -41,6 +41,9 @@ def det_mine(user):
     adj_pos.append(get_tile_coord(mine, 'up', 1))
     adj_pos.append(get_tile_coord(mine, 'down', 1))
 
+    if user['X'] == mine['X'] and user['Y'] == mine['Y'] and user['x'] == mine['x'] and user['y'] == mine['y']:
+        respawn(user)
+
     for p in adj_pos:
         if user_at(p):
             temp, enemy = user_at(p)
