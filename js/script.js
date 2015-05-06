@@ -107,7 +107,9 @@ $(function() {
         drawCells(svgContainer, scales, map.rock, "rock");
         drawCells(svgContainer, scales, map.structure, "structure");
         drawCells(svgContainer, scales, map.blue_base, "blue_base");
+        drawCells(svgContainer, scales, map.fifty_blue_base, "fifty_blue_base");
         drawCells(svgContainer, scales, map.red_base, "red_base");
+        drawCells(svgContainer, scales, map.fifty_red_base, "fifty_red__base");
         drawCells(svgContainer, scales, map.blue_lava, "blue_lava");
         drawCells(svgContainer, scales, map.red_lava, "red_lava");
         drawCells(svgContainer, scales, map.potion, "potion");
@@ -187,7 +189,7 @@ $(function() {
     //          empty dictionary if laser was not used
     //
     function completeMap(gridSize,terrain,users, player_x, player_y, target, path1){
-        var map = { grid:[], grass:[], rock:[], structure:[], blue_base:[], red:[],blue:[],red_base:[], blue_lava:[], red_lava:[], potion:[],person:[],player:[], mine:[], targ:[],path_h:[],path_v:[], p_arrow:[], p_mine:[]};
+        var map = { grid:[], grass:[], rock:[], structure:[], blue_base:[], red:[],blue:[],red_base:[], fifty_red_base:[], fifty_blue_base: [], blue_lava:[], red_lava:[], potion:[],person:[],player:[], mine:[], targ:[],path_h:[],path_v:[], p_arrow:[], p_mine:[]};
         for (var x =0 ; x<gridSize.x;x++){
             map.grid[x]=[];
         } 
