@@ -109,7 +109,7 @@ $(function() {
         drawCells(svgContainer, scales, map.blue_base, "blue_base");
         drawCells(svgContainer, scales, map.fifty_blue_base, "fifty_blue_base");
         drawCells(svgContainer, scales, map.red_base, "red_base");
-        drawCells(svgContainer, scales, map.fifty_red_base, "fifty_red__base");
+        drawCells(svgContainer, scales, map.fifty_red_base, "fifty_red_base");
         drawCells(svgContainer, scales, map.blue_lava, "blue_lava");
         drawCells(svgContainer, scales, map.red_lava, "red_lava");
         drawCells(svgContainer, scales, map.potion, "potion");
