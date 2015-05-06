@@ -78,11 +78,14 @@ def replenish():
                     num_mines+=1
                     continue
 
+            print "num_arrow"+ str(num_arrows)
+            print "min_potions"+ str(min_potions)
             if num_mines <min_mines:
                 add_resource(X,Y,'p_mine')
             if num_potions <min_potions:
                 add_resource(X,Y,'potion')
-            if num_mines <min_arrows:
+            if num_arrows <min_arrows:
+                print "replenishing arrows"
                 add_resource(X,Y,'p_arrow')
 
 while True:
