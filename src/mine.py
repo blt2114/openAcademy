@@ -45,6 +45,9 @@ def det_mine(user):
         if user_at(p):
             temp, enemy = user_at(p)
             users.update({'_id': enemy['_id']}, {"$inc": {'health': -50}})
+            # if you damage another player you get more points!
+            if (not p['x'] == user['x'] )or (not  p['y'] == user['y']):
+                users.update({"_id":user['_id']},{"$inc":{'score':+50}})
             if enemy['health'] <= 50:
                 respawn(enemy)
         elif terrain_at(p):
